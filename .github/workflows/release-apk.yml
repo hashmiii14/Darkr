@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -27,44 +25,32 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build Debug APK with Gradle
+      - name: Build Debug APK
         run: |
           chmod +x ./gradlew || true
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload Debug APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Darkr-v1.0-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Rename APK for release
-        run: |
-          mkdir -p release-output
-          cp app/build/outputs/apk/debug/app-debug.apk release-output/Darkr-v1.0.apk
-
       - name: Create GitHub Release and Upload APK
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: release-output/Darkr-v1.0.apk
-          name: Darkr v1.0.0 (OLED & Privacy Utility)
+          files: app/build/outputs/apk/debug/app-debug.apk
+          name: Darkr v1.0.2 (OLED & Privacy Utility)
           draft: false
           prerelease: false
           body: |
-            ## 🌑 Darkr v1.0.0 Android Release
-            
-            ### Features Included:
-            - **AMOLED Blackout Engine** (0% battery background streaming)
-            - **Metro Privacy Shield** (Draggable chat viewing slit)
-            - **Night Screen Torch** (Full-screen soft ambient illumination)
+            ## 🌑 Darkr v1.0.2 Android APK
+
+            ### 🚀 Features Included:
+            - **AMOLED Blackout Engine** (0% battery background YouTube & sleep stream)
+            - **Metro Privacy Shield** (Draggable chat viewing slit for WhatsApp)
+            - **Night Screen Torch** (Soft full-screen white ambient light)
             - **Touch Freeze** (Accidental touch interceptor)
-            - **Panic Decoy Camouflage** (Instant fake update screen)
+            - **Panic Decoy Camouflage** (Fake update screen)
             - **36px Floating Glass Orb** with Vertical HUD
-            
-            ### Installation:
-            1. Download `Darkr-v1.0.apk` below directly to your Android device.
-            2. Tap to Install (Allow *Install from unknown sources* if prompted).
-            3. Open Darkr, grant *Display over other apps* permission, and tap **START**!
+
+            ### 📲 Installation Instructions:
+            1. Tap **`app-debug.apk`** below to download directly to your Android device.
+            2. Tap **Install** (Allow *Install from unknown sources* if prompted).
+            3. Open Darkr, tap **Grant Permission** to enable *Display over other apps*, and tap **START**!
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
