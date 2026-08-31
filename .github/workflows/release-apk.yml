@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,17 +30,15 @@ jobs:
         chmod +x ./gradlew
         ./gradlew assembleDebug --no-daemon
 
-    - name: Upload to Instant Public Download Links
-      run: |
-        echo "=== Direct Temp.sh Link ==="
-        curl -F "file=@app/build/outputs/apk/debug/app-debug.apk" https://temp.sh/upload | tee tempsh_link.txt
-        echo ""
-        echo "=== Direct Catbox Link ==="
-        curl -F "reqtype=fileupload" -F "fileToUpload=@app/build/outputs/apk/debug/app-debug.apk" https://catbox.moe/user/api.php | tee catbox_link.txt
-        echo ""
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
+    - name: Publish Direct Public Release Asset
+      uses: softprops/action-gh-release@v2
       with:
-        name: Darkr-APK
-        path: app/build/outputs/apk/debug/app-debug.apk
+        files: app/build/outputs/apk/debug/*.apk
+        tag_name: latest
+        name: Darkr Android APK (Public Download)
+        draft: false
+        prerelease: false
+        body: |
+          ## 🌑 Darkr Android APK Direct Download
+          
+          Directly download and install Darkr on your Android device!
