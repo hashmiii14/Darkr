@@ -30,15 +30,9 @@ jobs:
         chmod +x ./gradlew
         ./gradlew assembleDebug --no-daemon
 
-    - name: Publish Direct Public Release Asset
-      uses: softprops/action-gh-release@v2
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
       with:
-        files: app/build/outputs/apk/debug/*.apk
-        tag_name: latest
-        name: Darkr Android APK (Public Download)
-        draft: false
-        prerelease: false
-        body: |
-          ## 🌑 Darkr Android APK Direct Download
-          
-          Directly download and install Darkr on your Android device!
+        name: Darkr-App-APK
+        path: "**/*.apk"
+        if-no-files-found: error
