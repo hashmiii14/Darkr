@@ -33,11 +33,13 @@ jobs:
         chmod +x ./gradlew
         ./gradlew assembleDebug --no-daemon
 
-    - name: Prepare APK files
+    - name: Find and Publish APK
       run: |
-        cp app/build/outputs/apk/debug/app-debug.apk ./Darkr.apk
+        APK_PATH=$(find app/build/outputs/apk/ -name "*.apk" | head -n 1)
+        echo "Found APK at: $APK_PATH"
         mkdir -p docs
-        cp app/build/outputs/apk/debug/app-debug.apk docs/Darkr.apk
+        cp "$APK_PATH" ./Darkr.apk
+        cp "$APK_PATH" docs/Darkr.apk
 
     - name: Commit and Push APK directly to Repository
       run: |
@@ -45,7 +47,7 @@ jobs:
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add -f ./Darkr.apk docs/Darkr.apk
         git commit -m "build: publish direct download Darkr.apk" || echo "No changes"
-        git push origin main
+        git push origin main || true
 
     - name: Publish to GitHub Release
       uses: softprops/action-gh-release@v2
