@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/freezeRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent">
+
+    <!-- Floating Glowing Lock Badge (Top Right Corner) -->
+    <LinearLayout
+        android:id="@+id/badgeUnlock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bg_card_dark"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_freeze"
+            android:contentDescription="@string/mode_touch_freeze_title" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/double_tap_to_unlock"
+            android:textColor="@color/emerald_accent"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</FrameLayout>

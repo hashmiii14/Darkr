@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Darkr</string>
+    <string name="app_tagline">Privacy Shield &amp; AMOLED Blackout</string>
+
+    <!-- Dashboard Strings -->
+    <string name="title_floating_pill">Floating Ghost Pill</string>
+    <string name="desc_floating_pill">Enable the draggable master bubble over all apps</string>
+    <string name="status_active">ACTIVE ON SCREEN</string>
+    <string name="status_inactive">STANDBY (TAP TO START)</string>
+
+    <!-- Mode Titles -->
+    <string name="mode_privacy_title">Metro Chat Shield</string>
+    <string name="mode_privacy_desc">Draggable privacy curtain with touch passthrough for WhatsApp</string>
+
+    <string name="mode_blackout_title">Pure AMOLED Blackout</string>
+    <string name="mode_blackout_desc">100% True Black overlay for YouTube background audio &amp; 0% battery</string>
+
+    <string name="mode_touch_freeze_title">Pocket &amp; Baby Touch Freeze</string>
+    <string name="mode_touch_freeze_desc">Freeze touch input while video or map stays completely visible</string>
+
+    <string name="mode_panic_title">Panic Shake Reflex</string>
+    <string name="mode_panic_desc">Shake phone to immediately blackout or show fake system update</string>
+
+    <string name="mode_dimmer_title">Extreme Midnight Dim</string>
+    <string name="mode_dimmer_desc">Lower-than-zero brightness with warm candlelight eye guard</string>
+
+    <!-- Permission & Actions -->
+    <string name="permission_required_title">Overlay Permission Needed</string>
+    <string name="permission_required_desc">Grant \'Display over other apps\' so Darkr can protect your screen</string>
+    <string name="btn_grant_permission">GRANT PERMISSION</string>
+    <string name="btn_stop_service">STOP OVERLAY</string>
+    <string name="btn_start_service">LAUNCH GHOST PILL</string>
+
+    <!-- Quick Action Tooltips -->
+    <string name="action_shield">Shield</string>
+    <string name="action_blackout">Blackout</string>
+    <string name="action_freeze">Freeze</string>
+    <string name="action_dim">Dim</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_close">Close</string>
+
+    <!-- Instructions -->
+    <string name="double_tap_to_wake">Double tap anywhere to wake</string>
+    <string name="double_tap_to_unlock">Double tap lock icon to unlock</string>
+    <string name="updating_system">Android System Updating (42%)\nDo not turn off device</string>
+</resources>

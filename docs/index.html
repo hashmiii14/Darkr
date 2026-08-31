@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darkr — Precision Screen Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-ambient: #000000;
+            --oled-black: #000000;
+            --titanium-chassis: #1C1C20;
+            --titanium-rim: #2C2C32;
+            --surface-glass: rgba(24, 24, 28, 0.65);
+            --surface-elevated: rgba(32, 32, 38, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.16);
+            --text-pure: #FFFFFF;
+            --text-high: #F4F4F6;
+            --text-mid: #A1A1AA;
+            --text-dim: #71717A;
+            --brand-white: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: #000000;
+            color: var(--text-high);
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', 'SF Pro Display', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 8px;
+            overflow-x: hidden;
+        }
+
+        .showcase-header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .showcase-header h1 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .showcase-header p {
+            color: var(--text-dim);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        /* 📱 Flagship Titanium Chassis (Ultra-Slim Micro-Bezel) */
+        .iphone-pro-max-frame {
+            position: relative;
+            width: 410px;
+            height: 855px;
+            background: var(--oled-black);
+            border-radius: 58px;
+            padding: 6px;
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.18),
+                0 0 0 3px #18181C,
+                0 0 0 4.5px #2A2A30,
+                0 40px 130px rgba(0, 0, 0, 0.98);
+            background: linear-gradient(155deg, #24242A 0%, #101014 40%, #1A1A20 100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen-glass-wrapper {
+            position: relative;
+            flex: 1;
+            background: var(--oled-black);
+            border-radius: 52px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        /* Dynamic Island Pill */
+        .dynamic-island-pro {
+            position: absolute;
+            top: 11px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 30px;
+            background: #000000;
+            border-radius: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 11px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .island-camera-lens {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #0E0E14;
+            border: 1.5px solid #1C1C24;
+        }
+
+        .island-sensor-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .island-sensor-dot.active {
+            opacity: 1;
+        }
+
+        /* Status Bar (Native Style) */
+        .system-top-bar {
+            height: 48px;
+            padding: 14px 24px 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #FFFFFF;
+            z-index: 990;
+        }
+
+        .clock-time {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #FFFFFF;
+        }
+
+        /* App Viewport Host */
+        .app-viewport {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            padding: 12px 18px 20px 18px;
+            gap: 14px;
+            scrollbar-width: none;
+        }
+
+        .view-canvas::-webkit-scrollbar {
+            display: none;
+        }
+
+        .view-canvas.active {
+            display: flex;
+        }
+
+        /* Top Brand Header */
+        .top-app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 2px;
+        }
+
+        .brand-logo-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-monogram-emblem {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #18181E 0%, #0C0C10 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .app-title-text {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #FFFFFF;
+        }
+
+        .live-status-chip {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-mid);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .live-status-chip.active {
+            background: rgba(255, 255, 255, 0.14);
+            color: #FFFFFF;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .chip-glow-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* 🌟 MATTE POWER CAPSULE CARD */
+        .power-capsule-card {
+            background: var(--surface-glass);
+            backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .power-capsule-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        }
+
+        .power-capsule-card.running {
+            background: rgba(30, 30, 38, 0.9);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .capsule-meta-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .capsule-power-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, #1C1C22 0%, #101014 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .power-capsule-card.running .capsule-power-icon {
+            background: #FFFFFF;
+            border-color: #FFFFFF;
+        }
+
+        .power-capsule-card.running .capsule-power-icon svg {
+            stroke: #000000;
+        }
+
+        .capsule-text-box h3 {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            color: #FFFFFF;
+        }
+
+        .capsule-text-box p {
+            font-size: 11.5px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .capsule-badge-pill {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--surface-elevated);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-mid);
+            transition: all 0.2s;
+        }
+
+        .power-capsule-card.running .capsule-badge-pill {
+            background: #FFFFFF;
+            color: #000000;
+            border-color: #FFFFFF;
+        }
+
+        /* Real Hardware Device Matrix */
+        .hardware-telemetry-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .telemetry-box {
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            padding: 13px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .telemetry-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 17px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .telemetry-lbl {
+            font-size: 9.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-dim);
+        }
+
+        /* 5 Core Protection Modules */
+        .modules-title-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-dim);
+            margin-top: 2px;
+            margin-bottom: -5px;
+        }
+
+        .module-frosted-card {
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 13px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .module-frosted-card:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .card-left-group {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .card-icon-frame {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-details-box h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: -0.2px;
+        }
+
+        .card-details-box p {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* Apple Smooth Switch */
+        .fluid-switch-btn {
+            width: 42px;
+            height: 24px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fluid-switch-btn::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .fluid-switch-btn.active {
+            background: #FFFFFF;
+            border-color: #FFFFFF;
+        }
+
+        .fluid-switch-btn.active::after {
+            transform: translateX(18px);
+            background: #000000;
+        }
+
+        /* 🔘 ULTRA-COMPACT 36px TRANSLUCENT FLOATING ORB */
+        .compact-floating-orb {
+            position: absolute;
+            top: 280px;
+            left: 345px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(18, 18, 22, 0.45);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            z-index: 600;
+            touch-action: none;
+            transition: transform 0.12s ease;
+        }
+
+        .compact-floating-orb:active {
+            cursor: grabbing;
+            transform: scale(0.92);
+        }
+
+        .compact-floating-orb.visible {
+            display: flex;
+        }
+
+        /* 📱 VERTICAL FLOATING ACTION HUD */
+        .vertical-action-hud {
+            position: absolute;
+            top: 220px;
+            left: 290px;
+            background: rgba(14, 14, 18, 0.94);
+            backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 24px;
+            padding: 7px 5px;
+            display: none;
+            flex-direction: column;
+            gap: 7px;
+            z-index: 650;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95);
+        }
+
+        .vertical-action-hud.visible {
+            display: flex;
+        }
+
+        .hud-tool-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .hud-tool-circle:hover {
+            background: #FFFFFF;
+            border-color: #FFFFFF;
+            transform: scale(1.06);
+        }
+
+        .hud-tool-circle:hover svg path,
+        .hud-tool-circle:hover svg circle,
+        .hud-tool-circle:hover svg rect {
+            stroke: #000000;
+        }
+
+        /* APP HEADER WITH NATIVE BACK BUTTONS */
+        .app-internal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(18, 18, 22, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .nav-back-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .nav-back-button:hover {
+            opacity: 0.8;
+        }
+
+        /* 📱 NATIVE HOME SCREEN (LAUNCHPAD) */
+        .home-screen-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px 14px;
+            padding: 24px 10px;
+            margin-top: 6px;
+        }
+
+        .app-icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .app-icon-item:active {
+            transform: scale(0.9);
+        }
+
+        .app-icon-squircle {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+        }
+
+        .app-icon-label {
+            font-size: 11.5px;
+            font-weight: 500;
+            color: #FFFFFF;
+            letter-spacing: -0.2px;
+        }
+
+        /* 🔦 ULTRA-BRIGHT SCREEN TORCH OVERLAY */
+        .torch-screen-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #FFFFFF;
+            z-index: 800;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .torch-screen-overlay.active {
+            display: flex;
+        }
+
+        .torch-hint-badge {
+            background: rgba(0, 0, 0, 0.9);
+            color: #FFFFFF;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        /* ⬛ TRUE OLED BLACKOUT LAYER */
+        .blackout-stage-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 700;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .blackout-stage-layer.active {
+            display: flex;
+        }
+
+        .subpixel-glow-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 46px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.45);
+            letter-spacing: 2px;
+        }
+
+        .subpixel-status-note {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .ambient-audio-bar {
+            margin-top: 24px;
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 4px 8px;
+            z-index: 750;
+        }
+
+        .sound-track-chip {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 16px;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sound-track-chip.playing {
+            background: rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .wake-capsule-hint {
+            position: absolute;
+            bottom: 50px;
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 🛡️ METRO PRIVACY CURTAIN LAYER */
+        .privacy-mask-viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            z-index: 500;
+            pointer-events: none;
+        }
+
+        .privacy-mask-viewport.active {
+            display: flex;
+        }
+
+        .curtain-upper-shadow {
+            background: rgba(0, 0, 0, 0.95);
+            height: 220px;
+            pointer-events: auto;
+        }
+
+        .curtain-clear-slit-box {
+            height: 140px;
+            border-top: 1.5px solid #FFFFFF;
+            border-bottom: 1.5px solid #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .slit-laser-handle {
+            background: #FFFFFF;
+            color: #000000;
+            font-size: 9.5px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: auto;
+            cursor: ns-resize;
+        }
+
+        .curtain-lower-shadow {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.95);
+            pointer-events: auto;
+        }
+
+        /* 🖐️ TOUCH LOCK LAYER */
+        .touch-lock-viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 550;
+            display: none;
+        }
+
+        .touch-lock-viewport.active {
+            display: block;
+        }
+
+        .lock-indicator-badge {
+            position: absolute;
+            top: 60px;
+            right: 16px;
+            background: rgba(20, 20, 26, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        /* 🚨 FAKE SYSTEM UPDATE CAMOUFLAGE LAYER */
+        .camouflage-screen-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 750;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .camouflage-screen-layer.active {
+            display: flex;
+        }
+
+        .cam-prog-bar {
+            width: 200px;
+            height: 5px;
+            background: #27272A;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .cam-prog-fill {
+            width: 42%;
+            height: 100%;
+            background: #FFFFFF;
+            animation: progPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes progPulse {
+            0% { width: 38%; }
+            50% { width: 46%; }
+            100% { width: 38%; }
+        }
+
+        /* SIMULATED THIRD-PARTY APPS */
+        .sim-app-canvas {
+            padding: 0 !important;
+            gap: 0 !important;
+            background: #0A0A0C;
+        }
+
+        /* YouTube Media Player */
+        .yt-media-stage {
+            width: 100%;
+            height: 230px;
+            background: #121216;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-bottom: 1px solid #222228;
+        }
+
+        .yt-play-disc {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .yt-meta-body {
+            padding: 16px;
+            flex: 1;
+            background: #0F0F12;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .yt-pill-tip {
+            background: #1A1A20;
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #A1A1AA;
+            margin-top: 8px;
+        }
+
+        /* WhatsApp Secure Chat */
+        .wa-chat-board {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #0B141A;
+        }
+
+        .wa-bubble-item {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .wa-incoming-msg {
+            background: #1F2C34;
+            color: #E9EDEF;
+            align-self: flex-start;
+        }
+
+        .wa-outgoing-msg {
+            background: #005C4B;
+            color: #E9EDEF;
+            align-self: flex-end;
+        }
+
+        /* 📱 HOME GESTURE BAR */
+        .system-home-bar {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 950;
+        }
+
+        .home-swipe-pill {
+            width: 140px;
+            height: 5px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .system-home-bar:hover .home-swipe-pill {
+            background: #FFFFFF;
+            width: 155px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="showcase-header">
+        <h1>Darkr</h1>
+        <p>Precision OLED Screen &amp; Privacy Suite</p>
+    </div>
+
+    <div class="iphone-pro-max-frame">
+        <div class="screen-glass-wrapper" id="deviceScreenHost">
+
+            <!-- Dynamic Island Pro -->
+            <div class="dynamic-island-pro">
+                <div class="island-camera-lens"></div>
+                <div id="islandDot" class="island-sensor-dot"></div>
+            </div>
+
+            <!-- Status Bar (Native iOS Style) -->
+            <div class="system-top-bar">
+                <span id="statusBarClock" class="clock-time">09:41</span>
+                <div style="display: flex; gap: 7px; align-items: center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+                    <span id="deviceBatteryPercentage" style="font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 700;">94%</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3"/></svg>
+                </div>
+            </div>
+
+            <div class="app-viewport">
+
+                <!-- VIEW 1: DARKR MASTER APP -->
+                <div id="viewDarkr" class="view-canvas active">
+                    
+                    <div class="top-app-header">
+                        <div class="brand-logo-group">
+                            <div class="brand-monogram-emblem">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="9" stroke="#FFFFFF" stroke-width="1.8"/>
+                                    <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9V3z" fill="#FFFFFF"/>
+                                    <circle cx="12" cy="12" r="3" fill="#000000"/>
+                                </svg>
+                            </div>
+                            <span class="app-title-text">Darkr</span>
+                        </div>
+                        <div id="statusBadge" class="live-status-chip">
+                            <span class="chip-glow-dot"></span>
+                            <span id="statusBadgeText">STANDBY</span>
+                        </div>
+                    </div>
+
+                    <!-- 🌟 MATTE POWER CAPSULE CARD -->
+                    <div id="powerCapsuleCard" class="power-capsule-card" onclick="togglePowerEngine()">
+                        <div class="capsule-meta-left">
+                            <div class="capsule-power-icon">
+                                <svg id="powerGlyph" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/></svg>
+                            </div>
+                            <div class="capsule-text-box">
+                                <h3 id="capsuleTitle">Enable Screen Overlay</h3>
+                                <p>Draws subtle floating orb over all apps</p>
+                            </div>
+                        </div>
+                        <div id="capsulePillStatus" class="capsule-badge-pill">START</div>
+                    </div>
+
+                    <!-- Real Hardware Device Telemetry Matrix -->
+                    <div class="hardware-telemetry-grid">
+                        <div class="telemetry-box">
+                            <div class="telemetry-val" id="liveDeviceBattery">
+                                <span id="batNum">94%</span>
+                                <span id="batIcon">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="#FFFFFF"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                </span>
+                            </div>
+                            <div class="telemetry-lbl">ACTIVE DEVICE BATTERY</div>
+                        </div>
+                        <div class="telemetry-box">
+                            <div class="telemetry-val" id="liveDeviceCores">
+                                <span id="coreNum">8-CORE</span>
+                            </div>
+                            <div class="telemetry-lbl">HARDWARE ENGINE</div>
+                        </div>
+                    </div>
+
+                    <div class="modules-title-label">Hardware Protection Engines</div>
+
+                    <!-- Module 1: AMOLED Blackout -->
+                    <div class="module-frosted-card" onclick="triggerModule('blackout')">
+                        <div class="card-left-group">
+                            <div class="card-icon-frame">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.15)"/>
+                                </svg>
+                            </div>
+                            <div class="card-details-box">
+                                <h4>AMOLED Black Screen</h4>
+                                <p>0% battery YouTube &amp; ambient sleep sound</p>
+                            </div>
+                        </div>
+                        <div id="switchBlackout" class="fluid-switch-btn"></div>
+                    </div>
+
+                    <!-- Module 2: Privacy Shield -->
+                    <div class="module-frosted-card" onclick="triggerModule('shield')">
+                        <div class="card-left-group">
+                            <div class="card-icon-frame">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.15)"/>
+                                </svg>
+                            </div>
+                            <div class="card-details-box">
+                                <h4>Metro Privacy Shield</h4>
+                                <p>Draggable viewing slit for WhatsApp chats</p>
+                            </div>
+                        </div>
+                        <div id="switchShield" class="fluid-switch-btn"></div>
+                    </div>
+
+                    <!-- Module 3: Screen Torch Flashlight -->
+                    <div class="module-frosted-card" onclick="triggerModule('torch')">
+                        <div class="card-left-group">
+                            <div class="card-icon-frame">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="5" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.2)"/>
+                                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#FFFFFF" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="card-details-box">
+                                <h4>Night Screen Torch</h4>
+                                <p>Ultra-bright full screen white illuminator</p>
+                            </div>
+                        </div>
+                        <div id="switchTorch" class="fluid-switch-btn"></div>
+                    </div>
+
+                    <!-- Module 4: Touch Lock -->
+                    <div class="module-frosted-card" onclick="triggerModule('freeze')">
+                        <div class="card-left-group">
+                            <div class="card-icon-frame">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.15)"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#FFFFFF" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="card-details-box">
+                                <h4>Touch Freeze</h4>
+                                <p>Prevent pocket &amp; baby accidental touches</p>
+                            </div>
+                        </div>
+                        <div id="switchFreeze" class="fluid-switch-btn"></div>
+                    </div>
+
+                    <!-- Module 5: Panic Camouflage Decoy -->
+                    <div class="module-frosted-card" onclick="triggerModule('camouflage')">
+                        <div class="card-left-group">
+                            <div class="card-icon-frame">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M16 1H8C6.34 1 5 2.34 5 4v16c0 1.66 1.34 3 3 3h8c1.66 0 3-1.34 3-3V4c0-1.66-1.34-3-3-3z" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.15)"/>
+                                    <path d="M1 10h2v4H1zM21 10h2v4h-2z" stroke="#FFFFFF" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="card-details-box">
+                                <h4>Panic Decoy Screen</h4>
+                                <p>Instant fake system update on shake reflex</p>
+                            </div>
+                        </div>
+                        <div id="switchCamouflage" class="fluid-switch-btn"></div>
+                    </div>
+
+                </div>
+
+                <!-- VIEW 2: PHONE HOME SCREEN (LAUNCHPAD) -->
+                <div id="viewHome" class="view-canvas">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 4px 0 4px;">
+                        <div>
+                            <div style="font-size: 25px; font-weight: 800; color: #FFFFFF;">Home</div>
+                            <div style="font-size: 12px; color: var(--text-dim); margin-top: 1px;">Tap any app &bull; Darkr overlay stays active!</div>
+                        </div>
+                        <button onclick="openPhoneApp('darkr')" style="background: var(--surface-glass); border: 1px solid var(--border-glass); color: #FFFFFF; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 14px; cursor: pointer;">
+                            Darkr App &rarr;
+                        </button>
+                    </div>
+
+                    <div class="home-screen-grid">
+                        <!-- App 1: Darkr -->
+                        <div class="app-icon-item" onclick="openPhoneApp('darkr')">
+                            <div class="app-icon-squircle" style="background: #18181C; border: 1px solid rgba(255,255,255,0.2);">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="9" stroke="#FFFFFF" stroke-width="1.8"/>
+                                    <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9V3z" fill="#FFFFFF"/>
+                                    <circle cx="12" cy="12" r="3" fill="#000000"/>
+                                </svg>
+                            </div>
+                            <span class="app-icon-label">Darkr</span>
+                        </div>
+
+                        <!-- App 2: YouTube -->
+                        <div class="app-icon-item" onclick="openPhoneApp('youtube')">
+                            <div class="app-icon-squircle" style="background: #FF0000;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                            <span class="app-icon-label">YouTube</span>
+                        </div>
+
+                        <!-- App 3: WhatsApp -->
+                        <div class="app-icon-item" onclick="openPhoneApp('whatsapp')">
+                            <div class="app-icon-squircle" style="background: #25D366;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            </div>
+                            <span class="app-icon-label">WhatsApp</span>
+                        </div>
+
+                        <!-- App 4: Spotify -->
+                        <div class="app-icon-item" onclick="openPhoneApp('youtube')">
+                            <div class="app-icon-squircle" style="background: #1DB954;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.58 14.42c-.18.3-.57.39-.87.21-2.38-1.46-5.38-1.79-8.91-.98-.34.08-.68-.13-.76-.47-.08-.34.13-.68.47-.76 3.88-.88 7.2-.5 9.86 1.13.3.18.39.57.21.87zm1.22-2.72c-.23.37-.72.49-1.09.26-2.73-1.68-6.88-2.16-10.1-1.18-.42.13-.86-.11-.99-.53-.13-.42.11-.86.53-.99 3.69-1.12 8.27-.58 11.39 1.35.37.23.49.72.26 1.09zm.12-2.83c-3.26-1.94-8.64-2.12-11.75-1.17-.5.15-1.03-.13-1.18-.63-.15-.5.13-1.03.63-1.18 3.59-1.09 9.53-.88 13.28 1.34.45.27.6.86.33 1.31-.27.45-.86.6-1.31.33z"/></svg>
+                            </div>
+                            <span class="app-icon-label">Spotify</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: YOUTUBE MEDIA PLAYER -->
+                <div id="viewYouTube" class="view-canvas sim-app-canvas">
+                    <div class="app-internal-header">
+                        <div class="nav-back-button" onclick="goToHomeScreen()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                            <span>Home</span>
+                        </div>
+                        <span style="font-size: 13px; font-weight: 700; color: #FFFFFF;">YouTube</span>
+                        <div onclick="openPhoneApp('darkr')" style="color: var(--text-mid); font-size: 11px; cursor: pointer; font-weight: 600;">Darkr &rarr;</div>
+                    </div>
+
+                    <div class="yt-media-stage">
+                        <div class="yt-play-disc">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                        <div style="font-size: 13.5px; font-weight: 600; margin-top: 10px;">Lofi Chill Beats &bull; Live Stream</div>
+                    </div>
+                    <div class="yt-meta-body">
+                        <div style="font-size: 14px; font-weight: 700;">Relaxing Deep Focus Stream (Playing)</div>
+                        <div class="yt-pill-tip">
+                            👉 <b>36px Translucent Orb:</b> Tap the compact floating orb &rarr; trigger Blackout, Torch, or Privacy Shield right over your video!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: WHATSAPP SECURE CHAT -->
+                <div id="viewWhatsApp" class="view-canvas sim-app-canvas">
+                    <div class="app-internal-header" style="background: #1F2C34;">
+                        <div class="nav-back-button" onclick="goToHomeScreen()" style="color: #25D366;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                            <span>Back</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 26px; height: 26px; border-radius: 50%; background: #25D366; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #000;">P</div>
+                            <span style="font-size: 13px; font-weight: 700; color: #FFFFFF;">Private Chat</span>
+                        </div>
+                        <div onclick="openPhoneApp('darkr')" style="color: var(--text-mid); font-size: 11px; cursor: pointer;">Darkr &rarr;</div>
+                    </div>
+
+                    <div class="wa-chat-board">
+                        <div class="wa-bubble-item wa-incoming-msg">Are you on the metro right now?</div>
+                        <div class="wa-bubble-item wa-outgoing-msg">Yes, train is super packed today.</div>
+                        <div class="wa-bubble-item wa-incoming-msg">Don't let anyone shoulder-peek! The bank passcode is <b>#8842-TX</b>.</div>
+                        <div class="wa-bubble-item wa-outgoing-msg">Protected by Darkr Privacy Shield. Only this slit is visible.</div>
+                        <div class="wa-bubble-item wa-incoming-msg">Awesome! 100% confidential.</div>
+                    </div>
+                </div>
+
+                <!-- 🔘 ULTRA-COMPACT 36px TRANSLUCENT FLOATING ORB -->
+                <div id="compactFloatingOrb" class="compact-floating-orb" onmousedown="startCompactOrbDrag(event)" ontouchstart="startCompactOrbDrag(event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.7)" stroke-width="1.8"/>
+                        <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9V3z" fill="#FFFFFF"/>
+                        <circle cx="12" cy="12" r="2.8" fill="#000000"/>
+                    </svg>
+                </div>
+
+                <!-- 📱 VERTICAL FLOATING ACTION HUD -->
+                <div id="verticalHudPill" class="vertical-action-hud">
+                    <div class="hud-tool-circle" title="AMOLED Blackout" onclick="triggerModule('blackout')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.2)"/>
+                        </svg>
+                    </div>
+                    <div class="hud-tool-circle" title="Privacy Shield" onclick="triggerModule('shield')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.2)"/>
+                        </svg>
+                    </div>
+                    <div class="hud-tool-circle" title="Screen Torch" onclick="triggerModule('torch')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="5" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.2)"/>
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#FFFFFF" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="hud-tool-circle" title="Touch Freeze" onclick="triggerModule('freeze')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="11" width="18" height="11" rx="2" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.2)"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#FFFFFF" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="hud-tool-circle" title="Panic Decoy" onclick="triggerModule('camouflage')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 1H8C6.34 1 5 2.34 5 4v16c0 1.66 1.34 3 3 3h8c1.66 0 3-1.34 3-3V4c0-1.66-1.34-3-3-3z" stroke="#FFFFFF" stroke-width="2" fill="rgba(255,255,255,0.2)"/>
+                            <path d="M1 10h2v4H1zM21 10h2v4h-2z" stroke="#FFFFFF" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="hud-tool-circle" title="Close" onclick="closeAllModals()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </div>
+                </div>
+
+                <!-- 🔦 ULTRA-BRIGHT SCREEN TORCH OVERLAY -->
+                <div id="torchLayer" class="torch-screen-overlay" ondblclick="exitTorch()" ontouchend="handleMobileDoubleTap(exitTorch)">
+                    <div class="torch-hint-badge" onclick="exitTorch()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        <span>SCREEN TORCH ACTIVE &bull; Tap here or double-tap to exit</span>
+                    </div>
+                </div>
+
+                <!-- ⬛ AMOLED BLACKOUT LAYER -->
+                <div id="blackoutLayer" class="blackout-stage-layer" ondblclick="exitBlackout()" ontouchend="handleMobileDoubleTap(exitBlackout)">
+                    <div id="blackoutClockVal" class="subpixel-glow-clock">09:41</div>
+                    <div class="subpixel-status-note">AUDIO BACKGROUND STREAM &bull; 0% BATTERY</div>
+                    
+                    <div class="ambient-audio-bar">
+                        <div class="sound-track-chip" id="soundRainChip" onclick="toggleAmbientSound('rain')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2"><path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9M8 19v2M8 13v2M12 21v2M12 15v2M16 19v2M16 13v2"/></svg>
+                            <span>Soft Rain</span>
+                        </div>
+                        <div class="sound-track-chip" id="soundDeltaChip" onclick="toggleAmbientSound('delta')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2"><path d="M2 12h3l3-9 4 18 3-9h7"/></svg>
+                            <span>432Hz Delta</span>
+                        </div>
+                    </div>
+
+                    <div class="wake-capsule-hint" onclick="exitBlackout()">
+                        Double-tap anywhere to wake display
+                    </div>
+                </div>
+
+                <!-- 🛡️ PRIVACY CURTAIN LAYER -->
+                <div id="privacyCurtainLayer" class="privacy-mask-viewport">
+                    <div id="curtainTopBlock" class="curtain-upper-shadow"></div>
+                    <div class="curtain-clear-slit-box">
+                        <div class="slit-laser-handle" onmousedown="startCurtainLaserDrag(event)">
+                            <span>DRAG TO POSITION CHAT VIEW</span>
+                            <span onclick="closePrivacyCurtain()" style="cursor: pointer; font-size: 13px;">✕</span>
+                        </div>
+                    </div>
+                    <div class="curtain-lower-shadow"></div>
+                </div>
+
+                <!-- 🖐️ TOUCH LOCK LAYER -->
+                <div id="touchLockLayer" class="touch-lock-viewport">
+                    <div class="lock-indicator-badge" ondblclick="triggerModule('freeze')" ontouchend="handleMobileDoubleTap(() => triggerModule('freeze'))">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span>TOUCH LOCKED (Double-tap to unlock)</span>
+                    </div>
+                </div>
+
+                <!-- 🚨 FAKE SYSTEM UPDATE CAMOUFLAGE LAYER -->
+                <div id="camouflageLayer" class="camouflage-screen-layer" ondblclick="exitCamouflage()" ontouchend="handleMobileDoubleTap(exitCamouflage)">
+                    <div class="cam-prog-bar">
+                        <div class="cam-prog-fill"></div>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 600; color: #E4E4E7;">Android System Updating (42%)</div>
+                    <div style="font-size: 11px; color: #71717A; margin-top: 6px;">Do not turn off your device.</div>
+                    <div class="wake-capsule-hint" onclick="exitCamouflage()" style="position: relative; margin-top: 30px;">
+                        Tap here to exit decoy screen
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 📱 HOME GESTURE BAR -->
+            <div class="system-home-bar" onclick="goToHomeScreen()">
+                <div class="home-swipe-pill"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let isEngineActive = false;
+        let isVerticalHudVisible = false;
+        let isBlackoutActive = false;
+        let isCurtainActive = false;
+        let isFreezeActive = false;
+        let isCamouflageActive = false;
+        let isTorchActive = false;
+
+        // Rich Web Audio Multi-Tone Synthesizer
+        let audioCtx = null;
+        let activeAmbientSource = null;
+        let activeAmbientType = null;
+
+        function playChimeTone(type = 'click') {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                if (type === 'start') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                } else if (type === 'thud') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(160, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.03);
+                }
+            } catch (_) {}
+        }
+
+        // Live Procedural Ambient Sound Generator
+        function toggleAmbientSound(type) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const rainChip = document.getElementById('soundRainChip');
+            const deltaChip = document.getElementById('soundDeltaChip');
+
+            if (activeAmbientType === type) {
+                if (activeAmbientSource) { activeAmbientSource.stop(); activeAmbientSource = null; }
+                activeAmbientType = null;
+                rainChip.classList.remove('playing');
+                deltaChip.classList.remove('playing');
+                return;
+            }
+
+            if (activeAmbientSource) { activeAmbientSource.stop(); activeAmbientSource = null; }
+            rainChip.classList.remove('playing');
+            deltaChip.classList.remove('playing');
+
+            if (type === 'rain') {
+                const bufferSize = audioCtx.sampleRate * 2;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                let lastOut = 0.0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    data[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = data[i];
+                    data[i] *= 3.0;
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                noise.loop = true;
+                const gain = audioCtx.createGain();
+                gain.gain.value = 0.18;
+                noise.connect(gain);
+                gain.connect(audioCtx.destination);
+                noise.start();
+                activeAmbientSource = noise;
+                activeAmbientType = 'rain';
+                rainChip.classList.add('playing');
+            } else if (type === 'delta') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(432, audioCtx.currentTime);
+                gain.gain.value = 0.08;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                activeAmbientSource = osc;
+                activeAmbientType = 'delta';
+                deltaChip.classList.add('playing');
+            }
+        }
+
+        // REAL DEVICE BATTERY & HARDWARE API INTEGRATION
+        async function initRealDeviceData() {
+            if (navigator.hardwareConcurrency) {
+                document.getElementById('coreNum').innerText = navigator.hardwareConcurrency + '-CORE';
+            }
+            try {
+                if (navigator.getBattery) {
+                    const battery = await navigator.getBattery();
+                    function updateBattery() {
+                        const level = Math.round(battery.level * 100) + '%';
+                        document.getElementById('batNum').innerText = level;
+                        document.getElementById('deviceBatteryPercentage').innerText = level;
+                    }
+                    updateBattery();
+                    battery.addEventListener('levelchange', updateBattery);
+                    battery.addEventListener('chargingchange', updateBattery);
+                }
+            } catch (_) {}
+        }
+        initRealDeviceData();
+
+        // Live Clock Precision
+        setInterval(() => {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+            document.getElementById('statusBarClock').innerText = timeStr;
+            document.getElementById('blackoutClockVal').innerText = timeStr;
+        }, 1000);
+
+        // Position HUD next to Orb
+        function positionVerticalHud() {
+            const orb = document.getElementById('compactFloatingOrb');
+            const hud = document.getElementById('verticalHudPill');
+            const host = document.getElementById('deviceScreenHost');
+            const orbX = orb.offsetLeft;
+            const orbY = orb.offsetTop;
+
+            const hudX = orbX > (host.clientWidth / 2) ? (orbX - 48) : (orbX + 42);
+            const hudY = Math.max(45, Math.min(orbY - 80, host.clientHeight - 260));
+
+            hud.style.left = hudX + 'px';
+            hud.style.top = hudY + 'px';
+        }
+
+        // Power Capsule Master Toggle
+        function togglePowerEngine() {
+            isEngineActive = !isEngineActive;
+            const card = document.getElementById('powerCapsuleCard');
+            const statusPill = document.getElementById('capsulePillStatus');
+            const title = document.getElementById('capsuleTitle');
+            const badge = document.getElementById('statusBadge');
+            const badgeText = document.getElementById('statusBadgeText');
+            const orb = document.getElementById('compactFloatingOrb');
+            const islandDot = document.getElementById('islandDot');
+
+            if (isEngineActive) {
+                playChimeTone('start');
+                card.classList.add('running');
+                statusPill.innerText = 'STOP';
+                title.innerText = 'Overlay Engine Active';
+                badge.classList.add('active');
+                badgeText.innerText = 'ONLINE';
+                orb.classList.add('visible');
+                islandDot.classList.add('active');
+            } else {
+                playChimeTone('click');
+                card.classList.remove('running');
+                statusPill.innerText = 'START';
+                title.innerText = 'Enable Screen Overlay';
+                badge.classList.remove('active');
+                badgeText.innerText = 'STANDBY';
+                orb.classList.remove('visible');
+                islandDot.classList.remove('active');
+                document.getElementById('verticalHudPill').classList.remove('visible');
+                isVerticalHudVisible = false;
+                closeAllModals();
+            }
+        }
+
+        // Module Action Triggers
+        function triggerModule(action) {
+            document.getElementById('verticalHudPill').classList.remove('visible');
+            isVerticalHudVisible = false;
+
+            if (action === 'blackout') {
+                playChimeTone('thud');
+                isBlackoutActive = !isBlackoutActive;
+                document.getElementById('blackoutLayer').classList.toggle('active', isBlackoutActive);
+                document.getElementById('switchBlackout').classList.toggle('active', isBlackoutActive);
+            } else if (action === 'shield') {
+                playChimeTone('click');
+                isCurtainActive = !isCurtainActive;
+                document.getElementById('privacyCurtainLayer').classList.toggle('active', isCurtainActive);
+                document.getElementById('switchShield').classList.toggle('active', isCurtainActive);
+                if (isCurtainActive && document.getElementById('viewDarkr').classList.contains('active')) {
+                    openPhoneApp('whatsapp');
+                }
+            } else if (action === 'torch') {
+                playChimeTone('click');
+                isTorchActive = !isTorchActive;
+                document.getElementById('torchLayer').classList.toggle('active', isTorchActive);
+                document.getElementById('switchTorch').classList.toggle('active', isTorchActive);
+            } else if (action === 'freeze') {
+                playChimeTone('click');
+                isFreezeActive = !isFreezeActive;
+                document.getElementById('touchLockLayer').classList.toggle('active', isFreezeActive);
+                document.getElementById('switchFreeze').classList.toggle('active', isFreezeActive);
+            } else if (action === 'camouflage') {
+                playChimeTone('click');
+                isCamouflageActive = !isCamouflageActive;
+                document.getElementById('camouflageLayer').classList.toggle('active', isCamouflageActive);
+                document.getElementById('switchCamouflage').classList.toggle('active', isCamouflageActive);
+            }
+        }
+
+        function exitTorch() {
+            playChimeTone('click');
+            isTorchActive = false;
+            document.getElementById('torchLayer').classList.remove('active');
+            document.getElementById('switchTorch').classList.remove('active');
+        }
+
+        function exitBlackout() {
+            playChimeTone('click');
+            isBlackoutActive = false;
+            document.getElementById('blackoutLayer').classList.remove('active');
+            document.getElementById('switchBlackout').classList.remove('active');
+            if (activeAmbientSource) { activeAmbientSource.stop(); activeAmbientSource = null; activeAmbientType = null; }
+            document.getElementById('soundRainChip').classList.remove('playing');
+            document.getElementById('soundDeltaChip').classList.remove('playing');
+        }
+
+        function exitCamouflage() {
+            playChimeTone('click');
+            isCamouflageActive = false;
+            document.getElementById('camouflageLayer').classList.remove('active');
+            document.getElementById('switchCamouflage').classList.remove('active');
+        }
+
+        function closePrivacyCurtain() {
+            playChimeTone('click');
+            isCurtainActive = false;
+            document.getElementById('privacyCurtainLayer').classList.remove('active');
+            document.getElementById('switchShield').classList.remove('active');
+        }
+
+        function closeAllModals() {
+            isBlackoutActive = false;
+            isCurtainActive = false;
+            isFreezeActive = false;
+            isCamouflageActive = false;
+            isTorchActive = false;
+            document.getElementById('blackoutLayer').classList.remove('active');
+            document.getElementById('privacyCurtainLayer').classList.remove('active');
+            document.getElementById('touchLockLayer').classList.remove('active');
+            document.getElementById('camouflageLayer').classList.remove('active');
+            document.getElementById('torchLayer').classList.remove('active');
+            document.getElementById('switchBlackout').classList.remove('active');
+            document.getElementById('switchShield').classList.remove('active');
+            document.getElementById('switchFreeze').classList.remove('active');
+            document.getElementById('switchCamouflage').classList.remove('active');
+            document.getElementById('switchTorch').classList.remove('active');
+            if (activeAmbientSource) { activeAmbientSource.stop(); activeAmbientSource = null; activeAmbientType = null; }
+        }
+
+        // Native Phone OS Navigation
+        function openPhoneApp(app) {
+            playChimeTone('click');
+            document.querySelectorAll('.view-canvas').forEach(v => v.classList.remove('active'));
+
+            if (app === 'darkr') {
+                document.getElementById('viewDarkr').classList.add('active');
+            } else if (app === 'youtube') {
+                document.getElementById('viewYouTube').classList.add('active');
+            } else if (app === 'whatsapp') {
+                document.getElementById('viewWhatsApp').classList.add('active');
+            }
+        }
+
+        function goToHomeScreen() {
+            playChimeTone('click');
+            document.querySelectorAll('.view-canvas').forEach(v => v.classList.remove('active'));
+            document.getElementById('viewHome').classList.add('active');
+        }
+
+        // 🔘 PHYSICS-DRAGGABLE 36px COMPACT FLOATING ORB
+        let isOrbDragging = false;
+        let dragOriginX = 0;
+        let dragOriginY = 0;
+        let orbInitialLeft = 0;
+        let orbInitialTop = 0;
+        let orbMoved = false;
+
+        function startCompactOrbDrag(e) {
+            isOrbDragging = true;
+            orbMoved = false;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+            dragOriginX = clientX;
+            dragOriginY = clientY;
+
+            const orb = document.getElementById('compactFloatingOrb');
+            orbInitialLeft = orb.offsetLeft;
+            orbInitialTop = orb.offsetTop;
+
+            document.addEventListener('mousemove', moveCompactOrbDrag);
+            document.addEventListener('mouseup', endCompactOrbDrag);
+            document.addEventListener('touchmove', moveCompactOrbDrag, { passive: false });
+            document.addEventListener('touchend', endCompactOrbDrag);
+        }
+
+        function moveCompactOrbDrag(e) {
+            if (!isOrbDragging) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+            const deltaX = clientX - dragOriginX;
+            const deltaY = clientY - dragOriginY;
+
+            if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
+                orbMoved = true;
+                if (e.cancelable) e.preventDefault();
+            }
+
+            const orb = document.getElementById('compactFloatingOrb');
+            const host = document.getElementById('deviceScreenHost');
+            const maxX = host.clientWidth - orb.clientWidth - 8;
+            const maxY = host.clientHeight - orb.clientHeight - 45;
+
+            const clampedX = Math.max(8, Math.min(orbInitialLeft + deltaX, maxX));
+            const clampedY = Math.max(45, Math.min(orbInitialTop + deltaY, maxY));
+
+            orb.style.left = clampedX + 'px';
+            orb.style.top = clampedY + 'px';
+
+            positionVerticalHud();
+        }
+
+        function endCompactOrbDrag() {
+            if (!isOrbDragging) return;
+            isOrbDragging = false;
+
+            document.removeEventListener('mousemove', moveCompactOrbDrag);
+            document.removeEventListener('mouseup', endCompactOrbDrag);
+            document.removeEventListener('touchmove', moveCompactOrbDrag);
+            document.removeEventListener('touchend', endCompactOrbDrag);
+
+            const orb = document.getElementById('compactFloatingOrb');
+            const host = document.getElementById('deviceScreenHost');
+
+            if (!orbMoved) {
+                playChimeTone('click');
+                isVerticalHudVisible = !isVerticalHudVisible;
+                positionVerticalHud();
+                document.getElementById('verticalHudPill').classList.toggle('visible', isVerticalHudVisible);
+                return;
+            }
+
+            // Magnetic spring snap
+            const currentX = orb.offsetLeft;
+            const targetX = currentX > (host.clientWidth / 2) ? (host.clientWidth - orb.clientWidth - 10) : 10;
+            orb.style.transition = 'left 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            orb.style.left = targetX + 'px';
+
+            setTimeout(() => {
+                orb.style.transition = 'none';
+                positionVerticalHud();
+            }, 220);
+        }
+
+        // Slit Drag Laser Handler
+        let isSlitDragging = false;
+        function startCurtainLaserDrag(e) {
+            isSlitDragging = true;
+            document.addEventListener('mousemove', moveCurtainLaserDrag);
+            document.addEventListener('mouseup', endCurtainLaserDrag);
+        }
+        function moveCurtainLaserDrag(e) {
+            if (!isSlitDragging) return;
+            const host = document.getElementById('deviceScreenHost');
+            const rect = host.getBoundingClientRect();
+            const relativeY = e.clientY - rect.top;
+            const clampedY = Math.max(50, Math.min(relativeY, 480));
+            document.getElementById('curtainTopBlock').style.height = clampedY + 'px';
+        }
+        // Mobile Fast Double-Tap Helper & Escape Key
+        let lastTapTime = 0;
+        function handleMobileDoubleTap(callback) {
+            const now = Date.now();
+            if (now - lastTapTime < 350) {
+                callback();
+                lastTapTime = 0;
+            } else {
+                lastTapTime = now;
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAllModals();
+                document.getElementById('verticalHudPill').classList.remove('visible');
+                isVerticalHudVisible = false;
+            }
+        });
+
+        window.addEventListener('blur', () => {
+            if (isOrbDragging) endCompactOrbDrag();
+            if (isSlitDragging) endCurtainLaserDrag();
+        });
+    </script>
+</body>
+</html>

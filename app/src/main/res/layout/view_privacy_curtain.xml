@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent">
+
+    <!-- Top Black Mask Area -->
+    <View
+        android:id="@+id/maskTop"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_alignParentTop="true"
+        android:background="#E6000000" />
+
+    <!-- Movable Transparent Viewing Slit -->
+    <LinearLayout
+        android:id="@+id/layoutSlit"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_below="@id/maskTop"
+        android:orientation="vertical"
+        android:background="@color/transparent">
+
+        <!-- Slit Top Border with Drag Handle & Close Button -->
+        <LinearLayout
+            android:id="@+id/slitHeader"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:background="#9906B6D4"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="↕ DRAG TO MOVE CHAT VIEW"
+                android:textColor="@color/black_true"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05" />
+
+            <ImageView
+                android:id="@+id/btnCloseShield"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_panic"
+                android:contentDescription="@string/action_close" />
+        </LinearLayout>
+
+        <!-- 100% Transparent Viewing Area (Touch passes through to WhatsApp) -->
+        <View
+            android:id="@+id/slitTransparentArea"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/transparent" />
+
+        <!-- Slit Bottom Border with Resize Handle -->
+        <LinearLayout
+            android:id="@+id/slitFooter"
+            android:layout_width="match_parent"
+            android:layout_height="14dp"
+            android:background="#6606B6D4"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="3dp"
+                android:background="@color/black_true" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom Black Mask Area -->
+    <View
+        android:id="@+id/maskBottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layoutSlit"
+        android:layout_alignParentBottom="true"
+        android:background="#E6000000" />
+
+</RelativeLayout>

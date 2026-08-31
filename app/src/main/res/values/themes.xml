@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Darkr" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/violet_primary</item>
+        <item name="colorOnPrimary">@color/text_white</item>
+        <item name="colorSecondary">@color/cyan_accent</item>
+        <item name="colorOnSecondary">@color/black_true</item>
+
+        <!-- Status bar and Navigation bar -->
+        <item name="android:statusBarColor">@color/black_true</item>
+        <item name="android:navigationBarColor">@color/black_true</item>
+        <item name="android:windowBackground">@color/black_true</item>
+    </style>
+
+    <style name="Theme.Darkr.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>
