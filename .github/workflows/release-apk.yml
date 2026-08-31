@@ -3,6 +3,7 @@
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   workflow_dispatch:
 
 permissions:
@@ -15,9 +16,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        ref: main
-        fetch-depth: 0
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -33,33 +31,21 @@ jobs:
         chmod +x ./gradlew
         ./gradlew assembleDebug --no-daemon
 
-    - name: Locate and Copy APK
-      run: |
-        find . -name "*debug.apk" -exec cp -v {} ./Darkr.apk \;
-        mkdir -p docs
-        cp -v ./Darkr.apk docs/Darkr.apk
-
-    - name: Upload APK as Direct Artifact
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Darkr-Release-APK
-        path: ./Darkr.apk
-
-    - name: Commit and Push APK directly to Repository
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add -f ./Darkr.apk docs/Darkr.apk
-        git commit -m "build: publish direct download Darkr.apk" || echo "No changes"
-        git push origin main || true
+        name: Darkr-APK
+        path: app/build/outputs/apk/debug/app-debug.apk
 
     - name: Publish to GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        files: ./Darkr.apk
-        tag_name: latest
-        name: Darkr Android APK (Latest)
+        files: app/build/outputs/apk/debug/app-debug.apk
+        tag_name: v1.0.6
+        name: Darkr Android APK (v1.0.6)
+        draft: false
+        prerelease: false
         body: |
           ## 🌑 Darkr Android APK Direct Download
           
-          Tap **Darkr.apk** below to download directly to your Android device!
+          Tap **app-debug.apk** below to download directly to your Android device!
