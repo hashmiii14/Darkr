@@ -30,25 +30,12 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Copy APK to docs for direct web download
-        run: |
-          mkdir -p docs
-          cp app/build/outputs/apk/debug/app-debug.apk docs/Darkr.apk
-          cp app/build/outputs/apk/debug/app-debug.apk ./Darkr.apk
-
-      - name: Create GitHub Release and Upload APK
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            ./Darkr.apk
-            app/build/outputs/apk/debug/app-debug.apk
-          name: Darkr v1.0.3 (Android APK)
-          draft: false
-          prerelease: false
-          body: |
-            ## 🌑 Darkr v1.0.3 Android APK
-
-            ### 🚀 Direct Download:
-            Click `Darkr.apk` or `app-debug.apk` below to download directly to your phone!
+      - name: Create Release and Upload APK
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk ./Darkr.apk
+          gh release delete ${{ github.ref_name }} --yes || true
+          gh release create ${{ github.ref_name }} ./Darkr.apk --title "Darkr ${{ github.ref_name }} (Android APK)" --notes "### 🌑 Darkr ${{ github.ref_name }} Android APK
+
+          Tap **Darkr.apk** below to download directly to your phone!"
