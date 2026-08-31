@@ -1,0 +1,59 @@
+﻿name: Release Darkr APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Rename APK for release
+        run: |
+          mkdir -p release-output
+          cp app/build/outputs/apk/debug/app-debug.apk release-output/Darkr-v1.0.apk
+
+      - name: Create GitHub Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-output/Darkr-v1.0.apk
+          tag_name: ${{ github.ref_name || 'v1.0.0' }}
+          name: Darkr v1.0.0 (OLED & Privacy Utility)
+          body: |
+            ## 🌑 Darkr v1.0.0 Android Release
+            
+            ### Features Included:
+            - **AMOLED Blackout Engine** (0% battery background streaming)
+            - **Metro Privacy Shield** (Draggable chat viewing slit)
+            - **Night Screen Torch** (Full-screen soft ambient illumination)
+            - **Touch Freeze** (Accidental touch interceptor)
+            - **Panic Decoy Camouflage** (Instant fake update screen)
+            - **36px Floating Glass Orb** with Vertical HUD
+            
+            ### Installation:
+            1. Download `Darkr-v1.0.apk` below directly to your Android device.
+            2. Tap to Install (Allow *Install from unknown sources* if prompted).
+            3. Open Darkr, grant *Display over other apps* permission, and tap **START**!
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
