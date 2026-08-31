@@ -33,13 +33,17 @@ jobs:
         chmod +x ./gradlew
         ./gradlew assembleDebug --no-daemon
 
-    - name: Find and Publish APK
+    - name: Locate and Copy APK
       run: |
-        APK_PATH=$(find app/build/outputs/apk/ -name "*.apk" | head -n 1)
-        echo "Found APK at: $APK_PATH"
+        find . -name "*debug.apk" -exec cp -v {} ./Darkr.apk \;
         mkdir -p docs
-        cp "$APK_PATH" ./Darkr.apk
-        cp "$APK_PATH" docs/Darkr.apk
+        cp -v ./Darkr.apk docs/Darkr.apk
+
+    - name: Upload APK as Direct Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Darkr-Release-APK
+        path: ./Darkr.apk
 
     - name: Commit and Push APK directly to Repository
       run: |
