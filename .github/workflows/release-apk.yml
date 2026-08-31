@@ -27,30 +27,28 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          chmod +x ./gradlew || true
+          chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon
+
+      - name: Copy APK to docs for direct web download
+        run: |
+          mkdir -p docs
+          cp app/build/outputs/apk/debug/app-debug.apk docs/Darkr.apk
+          cp app/build/outputs/apk/debug/app-debug.apk ./Darkr.apk
 
       - name: Create GitHub Release and Upload APK
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/debug/app-debug.apk
-          name: Darkr v1.0.2 (OLED & Privacy Utility)
+          files: |
+            ./Darkr.apk
+            app/build/outputs/apk/debug/app-debug.apk
+          name: Darkr v1.0.3 (Android APK)
           draft: false
           prerelease: false
           body: |
-            ## 🌑 Darkr v1.0.2 Android APK
+            ## 🌑 Darkr v1.0.3 Android APK
 
-            ### 🚀 Features Included:
-            - **AMOLED Blackout Engine** (0% battery background YouTube & sleep stream)
-            - **Metro Privacy Shield** (Draggable chat viewing slit for WhatsApp)
-            - **Night Screen Torch** (Soft full-screen white ambient light)
-            - **Touch Freeze** (Accidental touch interceptor)
-            - **Panic Decoy Camouflage** (Fake update screen)
-            - **36px Floating Glass Orb** with Vertical HUD
-
-            ### 📲 Installation Instructions:
-            1. Tap **`app-debug.apk`** below to download directly to your Android device.
-            2. Tap **Install** (Allow *Install from unknown sources* if prompted).
-            3. Open Darkr, tap **Grant Permission** to enable *Display over other apps*, and tap **START**!
+            ### 🚀 Direct Download:
+            Click `Darkr.apk` or `app-debug.apk` below to download directly to your phone!
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
