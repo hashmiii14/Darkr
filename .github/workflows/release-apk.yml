@@ -28,42 +28,32 @@ jobs:
     - name: Build Debug APK
       run: |
         chmod +x ./gradlew
-        ./gradlew :app:assembleDebug --no-daemon
-        find . -name "*.apk"
+        ./gradlew assembleDebug --no-daemon
 
-    - name: Prepare APK File
+    - name: Copy APK to Root
       run: |
-        APK_PATH=$(find app/build/outputs/ -name "*.apk" | head -n 1)
-        echo "Found APK at: $APK_PATH"
-        cp "$APK_PATH" ./Darkr.apk
+        cp app/build/outputs/apk/debug/app-debug.apk ./Darkr.apk
+        mkdir -p docs
+        cp app/build/outputs/apk/debug/app-debug.apk docs/Darkr.apk
         ls -lh ./Darkr.apk
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Darkr-APK-Package
+        name: Darkr-APK
         path: ./Darkr.apk
 
     - name: Publish to GitHub Release v1.0.0
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v1.0.0
-        name: Darkr v1.0.0 (OLED & Privacy Suite)
+        name: Darkr v1.0.0 (OLED Screen & Privacy Suite)
         files: ./Darkr.apk
         draft: false
         prerelease: false
         body: |
           ## 🌑 Darkr v1.0.0 Android APK
           
-          ### 🚀 Direct Download:
-          Click **Darkr.apk** below to download directly to your phone!
-          
-          ### ✨ Features:
-          - **AMOLED Blackout Engine** (0% battery background YouTube & sleep stream)
-          - **Metro Privacy Shield** (Draggable chat viewing slit for WhatsApp)
-          - **Night Screen Torch** (Soft full-screen ambient illumination)
-          - **Touch Freeze** (Accidental touch interceptor)
-          - **Panic Decoy Camouflage** (Fake update screen)
-          - **36px Floating Glass Orb** with Vertical HUD
+          Directly tap **Darkr.apk** below to download and install on your phone!
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
