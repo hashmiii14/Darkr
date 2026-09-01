@@ -20,6 +20,7 @@ class DarkrStateManagerTest {
         assertFalse(DarkrStateManager.isBlackoutActive.value)
         assertFalse(DarkrStateManager.isFreezeActive.value)
         assertFalse(DarkrStateManager.isDimmerActive.value)
+        assertFalse(DarkrStateManager.isClockActive.value)
         assertFalse(DarkrStateManager.isCamouflageActive.value)
     }
 
@@ -30,9 +31,11 @@ class DarkrStateManagerTest {
         DarkrStateManager.setBlackoutActive(true)
         DarkrStateManager.setFreezeActive(true)
         DarkrStateManager.setDimmerActive(true)
+        DarkrStateManager.setClockActive(true)
 
         assertTrue(DarkrStateManager.isShieldActive.value)
         assertTrue(DarkrStateManager.isBlackoutActive.value)
+        assertTrue(DarkrStateManager.isClockActive.value)
 
         // Stopping service must reset all overlay states
         DarkrStateManager.setServiceRunning(false)
@@ -42,6 +45,7 @@ class DarkrStateManagerTest {
         assertFalse(DarkrStateManager.isBlackoutActive.value)
         assertFalse(DarkrStateManager.isFreezeActive.value)
         assertFalse(DarkrStateManager.isDimmerActive.value)
+        assertFalse(DarkrStateManager.isClockActive.value)
     }
 
     @Test
@@ -59,5 +63,14 @@ class DarkrStateManagerTest {
     fun testPanicModeUpdate() {
         DarkrStateManager.setPanicMode(PreferencesManager.PANIC_MODE_CAMOUFLAGE)
         assertEquals(PreferencesManager.PANIC_MODE_CAMOUFLAGE, DarkrStateManager.panicMode.value)
+    }
+
+    @Test
+    fun testPocketAndMediaControlStateUpdates() {
+        DarkrStateManager.setPocketEnabled(true)
+        assertTrue(DarkrStateManager.isPocketEnabled.value)
+
+        DarkrStateManager.setMediaControlsVisible(false)
+        assertFalse(DarkrStateManager.isMediaControlsVisible.value)
     }
 }

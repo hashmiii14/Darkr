@@ -22,7 +22,7 @@ import com.darkr.app.util.PreferencesManager
 import kotlinx.coroutines.launch
 
 /**
- * Darkr Primary Dashboard Activity.
+ * Darkr 2026 Primary Dashboard Activity.
  * Synchronizes real-time state with DarkrStateManager and DarkrOverlayService.
  */
 class MainActivity : AppCompatActivity() {
@@ -72,62 +72,96 @@ class MainActivity : AppCompatActivity() {
             openAppDetailsSettings()
         }
 
-        binding.btnMasterToggle.setOnClickListener {
+        // Dominant Primary Action: BLACKEN SCREEN
+        binding.btnBlackenScreen.setOnClickListener {
             if (!hasOverlayPermission()) {
                 requestOverlayPermission()
                 return@setOnClickListener
             }
 
-            if (DarkrStateManager.isServiceRunning.value) {
-                stopOverlayService()
-            } else {
+            ensureServiceStarted()
+            sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_BLACKOUT)
+        }
+
+        // Floating Ghost Orb Switch
+        binding.switchFloatingOrb.setOnCheckedChangeListener { _, isChecked ->
+            if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
+            if (isChecked) {
+                if (!hasOverlayPermission()) {
+                    requestOverlayPermission()
+                    binding.switchFloatingOrb.isChecked = false
+                    return@setOnCheckedChangeListener
+                }
                 startOverlayService()
+            } else {
+                stopOverlayService()
             }
         }
     }
 
     private fun setupSwitches() {
+        // Clock Mode Switch
+        binding.switchClock.isChecked = prefs.isClockEnabled
+        binding.switchClock.setOnCheckedChangeListener { _, isChecked ->
+            if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
+            prefs.isClockEnabled = isChecked
+            DarkrStateManager.setClockActive(isChecked)
+        }
+
+        // Pocket Mode Switch
+        binding.switchPocket.isChecked = prefs.isPocketEnabled
+        binding.switchPocket.setOnCheckedChangeListener { _, isChecked ->
+            if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
+            prefs.isPocketEnabled = isChecked
+            DarkrStateManager.setPocketEnabled(isChecked)
+            if (DarkrStateManager.isServiceRunning.value) {
+                sendServiceAction(DarkrOverlayService.ACTION_REFRESH_SENSORS)
+            }
+        }
+
+        // Privacy Curtain Switch
         binding.switchShield.setOnCheckedChangeListener { _, isChecked ->
             if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isShieldEnabled = isChecked
             if (DarkrStateManager.isServiceRunning.value) {
                 sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_SHIELD)
+            } else if (isChecked) {
+                ensureServiceStarted()
+                sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_SHIELD)
             }
         }
 
-        binding.switchBlackout.setOnCheckedChangeListener { _, isChecked ->
-            if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
-            prefs.isBlackoutEnabled = isChecked
-            if (DarkrStateManager.isServiceRunning.value) {
-                sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_BLACKOUT)
-            }
-        }
-
+        // Touch Freeze Switch
         binding.switchFreeze.setOnCheckedChangeListener { _, isChecked ->
             if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isFreezeEnabled = isChecked
             if (DarkrStateManager.isServiceRunning.value) {
                 sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_FREEZE)
+            } else if (isChecked) {
+                ensureServiceStarted()
+                sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_FREEZE)
             }
         }
 
+        // Shake Panic Switch
+        binding.switchPanic.isChecked = prefs.isPanicEnabled
         binding.switchPanic.setOnCheckedChangeListener { _, isChecked ->
             if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isPanicEnabled = isChecked
             DarkrStateManager.setShakeEnabled(isChecked)
             if (DarkrStateManager.isServiceRunning.value) {
-                // Refresh shake detector
-                val intent = Intent(this, DarkrOverlayService::class.java).apply {
-                    action = DarkrOverlayService.ACTION_START
-                }
-                startService(intent)
+                sendServiceAction(DarkrOverlayService.ACTION_REFRESH_SENSORS)
             }
         }
 
+        // Midnight Dimmer Switch
         binding.switchDimmer.setOnCheckedChangeListener { _, isChecked ->
             if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isDimmerEnabled = isChecked
             if (DarkrStateManager.isServiceRunning.value) {
+                sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_DIMMER)
+            } else if (isChecked) {
+                ensureServiceStarted()
                 sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_DIMMER)
             }
         }
@@ -138,32 +172,32 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     DarkrStateManager.isServiceRunning.collect { isRunning ->
-                        updateMasterServiceUI(isRunning)
+                        updateSwitchState(binding.switchFloatingOrb, isRunning)
+                        updateTelemetryUI()
+                    }
+                }
+                launch {
+                    DarkrStateManager.isBlackoutActive.collect { isBlackout ->
+                        updateBlackoutCTA(isBlackout)
+                        updateTelemetryUI()
                     }
                 }
                 launch {
                     DarkrStateManager.isShieldActive.collect { isActive ->
                         updateSwitchState(binding.switchShield, isActive)
-                    }
-                }
-                launch {
-                    DarkrStateManager.isBlackoutActive.collect { isActive ->
-                        updateSwitchState(binding.switchBlackout, isActive)
+                        updateTelemetryUI()
                     }
                 }
                 launch {
                     DarkrStateManager.isFreezeActive.collect { isActive ->
                         updateSwitchState(binding.switchFreeze, isActive)
+                        updateTelemetryUI()
                     }
                 }
                 launch {
                     DarkrStateManager.isDimmerActive.collect { isActive ->
                         updateSwitchState(binding.switchDimmer, isActive)
-                    }
-                }
-                launch {
-                    DarkrStateManager.isShakeEnabled.collect { isEnabled ->
-                        updateSwitchState(binding.switchPanic, isEnabled)
+                        updateTelemetryUI()
                     }
                 }
             }
@@ -178,17 +212,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateMasterServiceUI(isRunning: Boolean) {
-        if (isRunning) {
-            binding.tvStatusBadge.text = getString(R.string.status_active)
-            binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
-            binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
-            binding.btnMasterToggle.text = getString(R.string.btn_stop_service)
+    private fun updateBlackoutCTA(isBlackout: Boolean) {
+        if (isBlackout) {
+            binding.btnBlackenScreen.text = "RESTORE SCREEN"
+            binding.btnBlackenScreen.setBackgroundColor(ContextCompat.getColor(this, R.color.card_dark_elevated))
+            binding.btnBlackenScreen.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
         } else {
-            binding.tvStatusBadge.text = getString(R.string.status_inactive)
-            binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_inactive)
-            binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
-            binding.btnMasterToggle.text = getString(R.string.btn_start_service)
+            binding.btnBlackenScreen.text = "BLACKEN SCREEN"
+            binding.btnBlackenScreen.setBackgroundColor(ContextCompat.getColor(this, R.color.white_pure))
+            binding.btnBlackenScreen.setTextColor(ContextCompat.getColor(this, R.color.black_true))
+        }
+    }
+
+    private fun updateTelemetryUI() {
+        val isBlackout = DarkrStateManager.isBlackoutActive.value
+        val isServiceRunning = DarkrStateManager.isServiceRunning.value
+        val isShield = DarkrStateManager.isShieldActive.value
+
+        when {
+            isBlackout -> {
+                binding.tvStatusBadge.text = "BLACKOUT ACTIVE"
+                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
+                binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
+            }
+            isShield -> {
+                binding.tvStatusBadge.text = "CURTAIN ACTIVE"
+                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
+                binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
+            }
+            isServiceRunning -> {
+                binding.tvStatusBadge.text = "GHOST ORB ON"
+                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
+                binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
+            }
+            else -> {
+                binding.tvStatusBadge.text = "READY"
+                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_inactive)
+                binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
+            }
         }
     }
 
@@ -226,7 +287,7 @@ class MainActivity : AppCompatActivity() {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             startActivity(intent)
-            Toast.makeText(this, "Tap the 3 dots (⋮) in top right & select 'Allow restricted settings'", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Tap 3 dots (⋮) in top right & select 'Allow restricted settings'", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Toast.makeText(this, "Could not open settings", Toast.LENGTH_SHORT).show()
         }
@@ -238,6 +299,12 @@ class MainActivity : AppCompatActivity() {
                 != PackageManager.PERMISSION_GRANTED) {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
+        }
+    }
+
+    private fun ensureServiceStarted() {
+        if (!DarkrStateManager.isServiceRunning.value) {
+            startOverlayService()
         }
     }
 

@@ -11,13 +11,14 @@ import com.darkr.app.DarkrApplication
 import com.darkr.app.MainActivity
 import com.darkr.app.R
 import com.darkr.app.overlay.*
+import com.darkr.app.sensor.PocketDetector
 import com.darkr.app.sensor.ShakeDetector
 import com.darkr.app.util.DarkrStateManager
 import com.darkr.app.util.PreferencesManager
 
 /**
- * Foreground Service controlling the Darkr Floating Orb, Privacy Curtains,
- * Blackout, Touch Freeze, Midnight Dimmer, and Shake sensor.
+ * Core Foreground Service controlling the Darkr Floating Orb, Privacy Curtains,
+ * Zero-Leak Blackout, Touch Freeze, Midnight Dimmer, Pocket Detector, and Shake sensor.
  */
 class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
 
@@ -31,6 +32,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
     private var midnightDimmerView: MidnightDimmerView? = null
     private var camouflageView: CamouflageView? = null
     private var shakeDetector: ShakeDetector? = null
+    private var pocketDetector: PocketDetector? = null
 
     companion object {
         const val ACTION_START = "com.darkr.app.ACTION_START"
@@ -41,6 +43,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         const val ACTION_TOGGLE_DIMMER = "com.darkr.app.ACTION_TOGGLE_DIMMER"
         const val ACTION_TOGGLE_CAMOUFLAGE = "com.darkr.app.ACTION_TOGGLE_CAMOUFLAGE"
         const val ACTION_TRIGGER_PANIC = "com.darkr.app.ACTION_TRIGGER_PANIC"
+        const val ACTION_REFRESH_SENSORS = "com.darkr.app.ACTION_REFRESH_SENSORS"
         const val NOTIFICATION_ID = 1001
 
         private const val TAG = "DarkrOverlayService"
@@ -55,6 +58,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
 
         DarkrStateManager.setServiceRunning(true)
         DarkrStateManager.setShakeEnabled(prefs.isPanicEnabled)
+        DarkrStateManager.setPocketEnabled(prefs.isPocketEnabled)
         DarkrStateManager.setPanicMode(prefs.panicMode)
 
         try {
@@ -64,7 +68,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         }
 
         setupFloatingPill()
-        setupShakeDetector()
+        setupSensors()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -79,11 +83,12 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
             ACTION_TOGGLE_DIMMER -> onDimmerClicked()
             ACTION_TOGGLE_CAMOUFLAGE -> onCamouflageClicked()
             ACTION_TRIGGER_PANIC -> onPanicClicked()
+            ACTION_REFRESH_SENSORS -> setupSensors()
             ACTION_START -> {
-                // If service already running, ensure floating pill is attached
                 if (floatingPill == null) {
                     setupFloatingPill()
                 }
+                setupSensors()
             }
         }
         return START_STICKY
@@ -98,7 +103,8 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         }
     }
 
-    private fun setupShakeDetector() {
+    private fun setupSensors() {
+        // Shake detector
         if (prefs.isPanicEnabled) {
             if (shakeDetector == null) {
                 shakeDetector = ShakeDetector(this) {
@@ -109,6 +115,27 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         } else {
             shakeDetector?.stop()
             shakeDetector = null
+        }
+
+        // Pocket detector
+        if (prefs.isPocketEnabled) {
+            if (pocketDetector == null) {
+                pocketDetector = PocketDetector(this) { isInPocket ->
+                    if (isInPocket) {
+                        if (blackoutView == null) {
+                            onBlackoutClicked()
+                        }
+                    } else {
+                        if (blackoutView != null) {
+                            removeBlackout()
+                        }
+                    }
+                }
+            }
+            pocketDetector?.startListening()
+        } else {
+            pocketDetector?.stopListening()
+            pocketDetector = null
         }
     }
 
@@ -138,7 +165,6 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
 
     override fun onBlackoutClicked() {
         if (blackoutView == null) {
-            // Dismiss camouflage if active
             removeCamouflage()
 
             blackoutView = BlackoutView(this, overlayManager) {
@@ -240,7 +266,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
     }
 
     private fun buildNotification(): Notification {
-        val pendingIntent = PendingIntent.getActivity(
+        val appPendingIntent = PendingIntent.getActivity(
             this,
             0,
             Intent(this, MainActivity::class.java).apply {
@@ -249,14 +275,34 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val toggleBlackoutIntent = PendingIntent.getService(
+            this,
+            1,
+            Intent(this, DarkrOverlayService::class.java).apply {
+                action = ACTION_TOGGLE_BLACKOUT
+            },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val stopIntent = PendingIntent.getService(
+            this,
+            2,
+            Intent(this, DarkrOverlayService::class.java).apply {
+                action = ACTION_STOP
+            },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         return NotificationCompat.Builder(this, DarkrApplication.CHANNEL_ID)
             .setContentTitle(getString(R.string.service_notification_title))
             .setContentText(getString(R.string.service_notification_text))
             .setSmallIcon(R.drawable.ic_darkr_logo)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(appPendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .addAction(R.drawable.ic_blackout, "Blackout", toggleBlackoutIntent)
+            .addAction(R.drawable.ic_darkr_logo, "Stop", stopIntent)
             .build()
     }
 
@@ -267,6 +313,9 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
 
         shakeDetector?.stop()
         shakeDetector = null
+
+        pocketDetector?.stopListening()
+        pocketDetector = null
 
         removePrivacyCurtain()
         removeBlackout()

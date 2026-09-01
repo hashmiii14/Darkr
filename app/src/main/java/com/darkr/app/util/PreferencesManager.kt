@@ -35,6 +35,18 @@ class PreferencesManager(context: Context) {
         get() = prefs.getBoolean(KEY_DIMMER_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_DIMMER_ENABLED, value).apply()
 
+    var isClockEnabled: Boolean
+        get() = prefs.getBoolean(KEY_CLOCK_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_CLOCK_ENABLED, value).apply()
+
+    var isPocketEnabled: Boolean
+        get() = prefs.getBoolean(KEY_POCKET_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_POCKET_ENABLED, value).apply()
+
+    var isMediaControlsEnabled: Boolean
+        get() = prefs.getBoolean(KEY_MEDIA_CONTROLS_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_MEDIA_CONTROLS_ENABLED, value).apply()
+
     var panicMode: String
         get() = prefs.getString(KEY_PANIC_MODE, PANIC_MODE_BLACKOUT) ?: PANIC_MODE_BLACKOUT
         set(value) = prefs.edit().putString(KEY_PANIC_MODE, value).apply()
@@ -63,6 +75,9 @@ class PreferencesManager(context: Context) {
         const val KEY_FREEZE_ENABLED = "key_freeze_enabled"
         const val KEY_PANIC_ENABLED = "key_panic_enabled"
         const val KEY_DIMMER_ENABLED = "key_dimmer_enabled"
+        const val KEY_CLOCK_ENABLED = "key_clock_enabled"
+        const val KEY_POCKET_ENABLED = "key_pocket_enabled"
+        const val KEY_MEDIA_CONTROLS_ENABLED = "key_media_controls_enabled"
         const val KEY_PANIC_MODE = "key_panic_mode"
         const val KEY_SLIT_Y = "key_slit_y"
         const val KEY_SLIT_HEIGHT = "key_slit_height"

@@ -6,7 +6,48 @@
     android:background="@color/black_true"
     android:keepScreenOn="true">
 
-    <!-- Subtle Double Tap Wake Helper (Auto-fades out in 2.5 seconds) -->
+    <!-- Minimal Info & Clock Mode Container (Burn-in protected with programmatic pixel-shifting) -->
+    <LinearLayout
+        android:id="@+id/layoutClockContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvClockTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textColor="#55FFFFFF"
+            android:textSize="56sp"
+            android:fontFamily="sans-serif-thin"
+            android:letterSpacing="0.04" />
+
+        <TextView
+            android:id="@+id/tvClockDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Monday, 1 Jan"
+            android:textColor="#33FFFFFF"
+            android:textSize="13sp"
+            android:letterSpacing="0.06" />
+
+        <TextView
+            android:id="@+id/tvClockBattery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="85% • OLED SAVING"
+            android:textColor="#25FFFFFF"
+            android:textSize="10.5sp"
+            android:letterSpacing="0.08" />
+    </LinearLayout>
+
+    <!-- Subtle Double Tap Wake Helper (Auto-fades out after 2 seconds) -->
     <LinearLayout
         android:id="@+id/layoutWakePrompt"
         android:layout_width="wrap_content"
@@ -33,6 +74,47 @@
             android:textColor="#80FFFFFF"
             android:textSize="12sp"
             android:letterSpacing="0.05" />
+    </LinearLayout>
+
+    <!-- Low-Luminance Media Controls Bar (Optional) -->
+    <LinearLayout
+        android:id="@+id/layoutMediaBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="48dp"
+        android:background="@drawable/bg_badge_inactive"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:gravity="center"
+        android:alpha="0.4"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/btnMediaPrev"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_media_prev"
+            android:contentDescription="Previous" />
+
+        <ImageView
+            android:id="@+id/btnMediaPlayPause"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginHorizontal="16dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_media_play"
+            android:contentDescription="Play/Pause" />
+
+        <ImageView
+            android:id="@+id/btnMediaNext"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_media_next"
+            android:contentDescription="Next" />
     </LinearLayout>
 
 </FrameLayout>

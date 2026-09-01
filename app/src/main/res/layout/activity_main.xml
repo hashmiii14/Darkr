@@ -15,8 +15,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="20dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="40dp">
+            android:paddingTop="24dp"
+            android:paddingBottom="44dp">
 
             <!-- Top Header & Brand Emblem -->
             <LinearLayout
@@ -24,12 +24,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:layout_marginBottom="20dp">
+                android:layout_marginBottom="24dp">
 
                 <ImageView
                     android:id="@+id/imgLogo"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:src="@drawable/ic_darkr_logo"
                     android:contentDescription="@string/app_name" />
 
@@ -45,16 +45,16 @@
                         android:layout_height="wrap_content"
                         android:text="@string/app_name"
                         android:textColor="@color/text_white"
-                        android:textSize="24sp"
+                        android:textSize="26sp"
                         android:textStyle="bold"
-                        android:letterSpacing="0.06" />
+                        android:letterSpacing="0.08" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/app_tagline"
+                        android:text="Black out your screen. Keep listening."
                         android:textColor="@color/text_secondary"
-                        android:textSize="11.5sp" />
+                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <TextView
@@ -62,16 +62,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_badge_inactive"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="@string/status_inactive"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="7dp"
+                    android:text="READY"
                     android:textColor="@color/text_muted"
-                    android:textSize="10sp"
+                    android:textSize="10.5sp"
                     android:textStyle="bold"
-                    android:letterSpacing="0.06" />
+                    android:letterSpacing="0.08" />
             </LinearLayout>
 
-            <!-- Permission Helper Card (Visible when permission missing) -->
+            <!-- Android 13/14 Permission Assistant Banner -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardPermission"
                 android:layout_width="match_parent"
@@ -115,7 +115,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Darkr requires 'Display over other apps' to show the floating action orb and privacy shields."
+                        android:text="Darkr requires 'Display over other apps' to black out the display over your active media."
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:lineSpacingExtra="3dp" />
@@ -134,7 +134,7 @@
                         android:letterSpacing="0.04"
                         app:cornerRadius="12dp" />
 
-                    <!-- Android 13/14 Restricted Settings Guide Box -->
+                    <!-- Android 13/14 Restricted Settings Unblock Box -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -178,14 +178,14 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Master Floating Orb Controller Card -->
+            <!-- DOMINANT PRIMARY CALL-TO-ACTION HERO CARD -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_card_dark"
                 android:orientation="vertical"
-                android:padding="20dp"
-                android:layout_marginBottom="24dp">
+                android:padding="22dp"
+                android:layout_marginBottom="28dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -194,70 +194,192 @@
                     android:orientation="horizontal">
 
                     <FrameLayout
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
                         android:background="@drawable/bg_action_circle">
 
                         <ImageView
-                            android:layout_width="26dp"
-                            android:layout_height="26dp"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/ic_darkr_logo"
-                            android:contentDescription="@string/title_floating_pill" />
+                            android:src="@drawable/ic_blackout"
+                            android:contentDescription="Blacken Screen" />
                     </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="14dp"
+                        android:layout_marginStart="16dp"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/title_floating_pill"
+                            android:text="Instant Screen Blackout"
                             android:textColor="@color/text_white"
-                            android:textSize="16sp"
+                            android:textSize="17sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="@string/desc_floating_pill"
+                            android:text="True OLED black • Double tap to wake"
                             android:textColor="@color/text_muted"
-                            android:textSize="11.5sp" />
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Big Monochrome Hero Master Toggle Button -->
+                <!-- Huge Tactile Dominant CTA Button -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnMasterToggle"
+                    android:id="@+id/btnBlackenScreen"
                     android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:layout_marginTop="18dp"
+                    android:layout_height="62dp"
+                    android:layout_marginTop="20dp"
                     android:backgroundTint="@color/white_pure"
-                    android:text="@string/btn_start_service"
+                    android:text="BLACKEN SCREEN"
                     android:textColor="@color/black_true"
-                    android:textSize="13sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
-                    android:letterSpacing="0.06"
-                    app:cornerRadius="14dp" />
+                    android:letterSpacing="0.08"
+                    app:cornerRadius="16dp" />
+
+                <!-- Floating Orb Sub-Toggle -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Floating Ghost Orb"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchFloatingOrb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:thumbTint="@color/white_pure"
+                        app:trackTint="@color/text_subtle" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Section Header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PROTECTION MODULES"
+                android:text="SCREEN &amp; MEDIA MODULES"
                 android:textColor="@color/text_secondary"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.12"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Module 1: Privacy Curtain -->
+            <!-- Module 1: Minimal Info & Clock Mode -->
+            <LinearLayout
+                android:id="@+id/cardClock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_dark"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_clock"
+                    android:contentDescription="Minimal Clock" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Minimal Clock &amp; Battery"
+                        android:textColor="@color/text_white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Low-power time &amp; battery with OLED burn-in protection"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchClock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:thumbTint="@color/white_pure"
+                    app:trackTint="@color/text_subtle" />
+            </LinearLayout>
+
+            <!-- Module 2: Smart Pocket Detector -->
+            <LinearLayout
+                android:id="@+id/cardPocket"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_dark"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_freeze"
+                    android:contentDescription="Smart Pocket Mode" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Smart Pocket Auto-Blackout"
+                        android:textColor="@color/text_white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Auto-blackouts in pocket or face-down on table"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchPocket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:thumbTint="@color/white_pure"
+                    app:trackTint="@color/text_subtle" />
+            </LinearLayout>
+
+            <!-- Module 3: Dual-Segment Privacy Curtain -->
             <LinearLayout
                 android:id="@+id/cardShield"
                 android:layout_width="match_parent"
@@ -306,56 +428,7 @@
                     app:trackTint="@color/text_subtle" />
             </LinearLayout>
 
-            <!-- Module 2: Pure AMOLED Blackout -->
-            <LinearLayout
-                android:id="@+id/cardBlackout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_card_dark"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="10dp">
-
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@drawable/ic_blackout"
-                    android:contentDescription="@string/mode_blackout_title" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="14dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/mode_blackout_title"
-                        android:textColor="@color/text_white"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="@string/mode_blackout_desc"
-                        android:textColor="@color/text_muted"
-                        android:textSize="11sp" />
-                </LinearLayout>
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switchBlackout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:thumbTint="@color/white_pure"
-                    app:trackTint="@color/text_subtle" />
-            </LinearLayout>
-
-            <!-- Module 3: Touch Freeze -->
+            <!-- Module 4: Touch Freeze -->
             <LinearLayout
                 android:id="@+id/cardFreeze"
                 android:layout_width="match_parent"
@@ -404,7 +477,7 @@
                     app:trackTint="@color/text_subtle" />
             </LinearLayout>
 
-            <!-- Module 4: Panic Sensor Reflex -->
+            <!-- Module 5: Shake Panic Sensor -->
             <LinearLayout
                 android:id="@+id/cardPanic"
                 android:layout_width="match_parent"
@@ -453,7 +526,7 @@
                     app:trackTint="@color/text_subtle" />
             </LinearLayout>
 
-            <!-- Module 5: Midnight Dimmer -->
+            <!-- Module 6: Midnight Dimmer -->
             <LinearLayout
                 android:id="@+id/cardDimmer"
                 android:layout_width="match_parent"
@@ -507,7 +580,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="🔒 100% OFFLINE • ZERO ADS • ZERO TRACKING"
+                android:text="🔒 100% OFFLINE • ZERO ADS • ZERO TRACKING • NO ROOT"
                 android:textColor="@color/text_muted"
                 android:textSize="10sp"
                 android:letterSpacing="0.08" />

@@ -25,11 +25,20 @@ object DarkrStateManager {
     private val _isDimmerActive = MutableStateFlow(false)
     val isDimmerActive: StateFlow<Boolean> = _isDimmerActive.asStateFlow()
 
+    private val _isClockActive = MutableStateFlow(false)
+    val isClockActive: StateFlow<Boolean> = _isClockActive.asStateFlow()
+
     private val _isCamouflageActive = MutableStateFlow(false)
     val isCamouflageActive: StateFlow<Boolean> = _isCamouflageActive.asStateFlow()
 
     private val _isShakeEnabled = MutableStateFlow(true)
     val isShakeEnabled: StateFlow<Boolean> = _isShakeEnabled.asStateFlow()
+
+    private val _isPocketEnabled = MutableStateFlow(false)
+    val isPocketEnabled: StateFlow<Boolean> = _isPocketEnabled.asStateFlow()
+
+    private val _isMediaControlsVisible = MutableStateFlow(true)
+    val isMediaControlsVisible: StateFlow<Boolean> = _isMediaControlsVisible.asStateFlow()
 
     private val _panicMode = MutableStateFlow(PreferencesManager.PANIC_MODE_BLACKOUT)
     val panicMode: StateFlow<String> = _panicMode.asStateFlow()
@@ -42,6 +51,7 @@ object DarkrStateManager {
             _isBlackoutActive.value = false
             _isFreezeActive.value = false
             _isDimmerActive.value = false
+            _isClockActive.value = false
             _isCamouflageActive.value = false
         }
     }
@@ -53,7 +63,6 @@ object DarkrStateManager {
     fun setBlackoutActive(active: Boolean) {
         _isBlackoutActive.value = active
         if (active) {
-            // Blackout overrides camouflage
             _isCamouflageActive.value = false
         }
     }
@@ -66,16 +75,27 @@ object DarkrStateManager {
         _isDimmerActive.value = active
     }
 
+    fun setClockActive(active: Boolean) {
+        _isClockActive.value = active
+    }
+
     fun setCamouflageActive(active: Boolean) {
         _isCamouflageActive.value = active
         if (active) {
-            // Camouflage overrides blackout
             _isBlackoutActive.value = false
         }
     }
 
     fun setShakeEnabled(enabled: Boolean) {
         _isShakeEnabled.value = enabled
+    }
+
+    fun setPocketEnabled(enabled: Boolean) {
+        _isPocketEnabled.value = enabled
+    }
+
+    fun setMediaControlsVisible(visible: Boolean) {
+        _isMediaControlsVisible.value = visible
     }
 
     fun setPanicMode(mode: String) {
@@ -88,6 +108,7 @@ object DarkrStateManager {
         _isBlackoutActive.value = false
         _isFreezeActive.value = false
         _isDimmerActive.value = false
+        _isClockActive.value = false
         _isCamouflageActive.value = false
     }
 }

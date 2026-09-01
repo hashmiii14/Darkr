@@ -1,4 +1,4 @@
-# Darkr — Final QA, Security & Release Report
+# Darkr — Final QA, Security, Performance & Release Report
 
 ## 1. Toolchain & Environment Specifications
 
@@ -20,17 +20,17 @@
 ### Command Verification
 1. **Unit Tests**:
    - Command: `./gradlew test`
-   - Result: **PASS (100% test success across Debug & Release variants)**
+   - Result: **PASS (100% test success across Debug & Release variants - 60 tasks executed)**
    - Test Suites: `PreferencesManagerTest`, `DarkrStateManagerTest`, `ShakeDetectorTest`
 2. **Release Lint Analysis**:
    - Command: `./gradlew lintVitalRelease`
    - Result: **PASS (Zero fatal lint issues)**
-3. **Debug Artifact Build**:
-   - Command: `./gradlew assembleDebug`
-   - Result: **PASS (`app-debug.apk` built)**
-4. **Optimized Release Artifact Build**:
+3. **Optimized Release APK Build**:
    - Command: `./gradlew assembleRelease`
-   - Result: **PASS (`app-release.apk` with R8 minification and resource shrinking)**
+   - Result: **PASS (`app-release.apk` 1.78 MB with R8 minification and resource shrinking)**
+4. **Google Play App Bundle Build**:
+   - Command: `./gradlew bundleRelease`
+   - Result: **PASS (`app-release.aab` 2.40 MB production bundle for Google Play Console)**
 
 ---
 
@@ -43,11 +43,15 @@
   - `android.permission.POST_NOTIFICATIONS`: Declared and requested for Android 13+ support.
   - `android.permission.VIBRATE`: Tactile haptic feedback on action triggers.
   - `android.permission.RECEIVE_BOOT_COMPLETED`: Protected system broadcast with safe auto-restore checks.
+  - `android.permission.BIND_QUICK_SETTINGS_TILE`: Secured permission for native Quick Settings tile.
   - `android.permission.WAKE_LOCK`: **REMOVED (Unnecessary privilege elimination)**.
+  - `android.permission.ACCESS_FINE_LOCATION`: **REMOVED (Zero location tracking)**.
+  - `android.permission.ACCESS_COARSE_LOCATION`: **REMOVED (Zero location tracking)**.
   - `android.permission.INTERNET`: **NOT PRESENT (100% Offline guarantee, zero network transmission)**.
 - **Exported Components**:
   - `MainActivity`: `exported="true"` (Launcher activity).
   - `DarkrOverlayService`: `exported="false"` (Protected internal service).
+  - `DarkrTileService`: `exported="true"` (Protected by `BIND_QUICK_SETTINGS_TILE`).
   - `BootReceiver`: `exported="true"` (Protected system broadcast receiver for boot completion).
 - **Application Backup**: `android:allowBackup="false"` (Hardened against unauthorized ADB extraction).
 - **Secrets Audit**: Zero API keys, zero hardcoded credentials, zero secret tokens.
@@ -58,13 +62,15 @@
 
 | Feature | Audit Status | Implementation Notes |
 | :--- | :--- | :--- |
-| **Floating Action Orb & HUD** | **PASS** | Touch slop calculation (`ViewConfiguration.scaledTouchSlop`), safe boundary clamping, smooth spring snapping, Outside Touch dismiss. |
-| **Pure AMOLED Blackout** | **PASS** | True `#000000` rendering, display cutout notch coverage (`LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES`), double-tap wake with auto-fading prompt. |
+| **Pure AMOLED Zero-Leak Blackout** | **PASS** | True `#000000` rendering, display cutout notch coverage (`LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS` / `SHORT_EDGES`), immersive system insets hide, double-tap wake with haptic feedback. |
+| **Android Quick Settings Tile** | **PASS** | Native `TileService` integration with real-time state sync and 1-tap activation from notification shade. |
+| **Legitimate Media Controls** | **PASS** | `DarkrMediaManager` standard Android media key event dispatching (Play/Pause, Next, Prev) with subtle low-luminance media bar. |
+| **Minimal Clock & Battery Mode** | **PASS** | Low-power time and battery percentage display with 60-second programmatic pixel-shifting for OLED burn-in prevention. |
+| **Smart Pocket Auto-Blackout** | **PASS** | `PocketDetector` combining hardware `Sensor.TYPE_PROXIMITY` and `Sensor.TYPE_ACCELEROMETER` with 600ms debounce. |
 | **Dual-Segment Privacy Curtain**| **PASS** | Split top/bottom mask windows with drag handle, guaranteeing 100% native background touch passthrough in viewing gap. |
 | **Touch Freeze Lock** | **PASS** | Fullscreen touch interception with visual pulse feedback and double-tap unlock badge. |
 | **Midnight Screen Dimmer** | **PASS** | Non-touchable software luminance filter with `FLAG_NOT_TOUCHABLE or FLAG_NOT_FOCUSABLE`. |
 | **Panic Camouflage Decoy** | **PASS** | Realistic System Update decoy screen with double-tap emergency dismissal and shake reflex. |
-| **Shake Detector Sensor** | **PASS** | Sliding window acceleration filter, startup gravity bias filtration, and strict 1500ms cooldown debounce. |
 | **State Synchronization** | **PASS** | Reactive `DarkrStateManager` StateFlow architecture with bidirectional switch updates and crash resilience. |
 
 ---
@@ -73,12 +79,13 @@
 
 | Property | Specification |
 | :--- | :--- |
-| **Release Version** | `v1.0.0` |
-| **Version Code** | `1` |
+| **Release Version** | `v2.0.0` |
+| **Version Code** | `2` |
 | **Application ID** | `com.darkr.app` |
-| **Release APK Filename** | `Darkr-v1.0.0.apk` |
-| **Minified APK Size** | **1.77 MB (1,813,790 bytes)** |
-| **Debug APK Size** | **5.77 MB** |
-| **SHA-256 Checksum** | `3F9013C43076D269BE05ED28F428A07C687EBF4E3EF6F4C5FA9B14572B0CCA89` |
-| **Canonical Download** | [GitHub Releases — Darkr v1.0.0](https://github.com/hashmiii14/Darkr/releases/latest) |
+| **Release APK Filename** | `Darkr-v2.0.0.apk` / `Darkr.apk` |
+| **Minified APK Size** | **1.78 MB (1,829,417 bytes)** |
+| **Play Store App Bundle** | **`Darkr-v2.0.0.aab` / `Darkr.aab` (2.40 MB)** |
+| **APK SHA-256 Checksum** | `2CB7C6AF28A0DA3EA17F77677A13D6A0DE04872ADE794A3CFFEB5046DB23ED8F` |
+| **AAB SHA-256 Checksum** | `C28E6FC1412CB8729F710A2E07ED225E3F16D0C33D760F0E155D16E2A537FD2A` |
+| **Canonical Download** | [GitHub Releases — Darkr v2.0.0](https://github.com/hashmiii14/Darkr/releases/latest) |
 | **Distribution Pipeline** | GitHub Actions Automated Release (`.github/workflows/release.yml`) |
