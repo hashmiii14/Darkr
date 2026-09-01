@@ -4,9 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black_true"
+    android:fitsSystemWindows="false"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:keepScreenOn="true">
 
-    <!-- Minimal Info & World Clock Display (Center) -->
+    <!-- Centered Minimalist Typography (Matching Image 2 Reference) -->
     <LinearLayout
         android:id="@+id/layoutClockContainer"
         android:layout_width="wrap_content"
@@ -15,70 +18,63 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <!-- Exact Local / World Time -->
+        <!-- Time (e.g. 8:01) -->
         <TextView
             android:id="@+id/tvClockTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00:00"
-            android:textColor="#88FFFFFF"
+            android:text="8:01"
+            android:textColor="#F0FFFFFF"
             android:textSize="64sp"
-            android:fontFamily="sans-serif-thin"
-            android:letterSpacing="0.04" />
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.02" />
 
-        <!-- Day, Date and Month -->
+        <!-- Date (e.g. Tue, Sep 1) -->
         <TextView
             android:id="@+id/tvClockDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Tuesday, 1 September"
-            android:textColor="#55FFFFFF"
-            android:textSize="14sp"
-            android:letterSpacing="0.06" />
+            android:layout_marginTop="2dp"
+            android:text="Tue, Sep 1"
+            android:textColor="#90FFFFFF"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.04" />
 
-        <!-- Battery Status -->
+        <!-- Battery (e.g. 🔋 81%) -->
         <TextView
             android:id="@+id/tvClockBattery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="🔋 85% • AMOLED SAVING"
-            android:textColor="#40FFFFFF"
-            android:textSize="11.5sp"
-            android:letterSpacing="0.08" />
+            android:layout_marginTop="6dp"
+            android:text="🔋 81%"
+            android:textColor="#75FFFFFF"
+            android:textSize="13sp"
+            android:letterSpacing="0.04" />
     </LinearLayout>
 
-    <!-- Tap-to-Reveal Bottom Unlock Pill (Auto-reveals on screen touch, fades out in 3.5s) -->
-    <LinearLayout
-        android:id="@+id/layoutUnlockPill"
+    <!-- Bottom UNLOCK Text Button (Matching Image 2 Reference) -->
+    <FrameLayout
+        android:id="@+id/layoutUnlockContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="54dp"
-        android:background="@drawable/bg_unlock_pill"
+        android:layout_marginBottom="60dp"
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="14dp"
         android:clickable="true"
-        android:focusable="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:alpha="0">
-
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:src="@drawable/ic_freeze"
-            android:tint="@color/white_pure"
-            android:contentDescription="Unlock" />
+        android:focusable="true">
 
         <TextView
+            android:id="@+id/tvUnlockText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="TAP TO UNLOCK"
-            android:textColor="@color/white_pure"
-            android:textSize="12sp"
+            android:text="UNLOCK"
+            android:textColor="#D0FFFFFF"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:letterSpacing="0.08" />
-    </LinearLayout>
+            android:letterSpacing="0.16" />
+    </FrameLayout>
 
 </FrameLayout>

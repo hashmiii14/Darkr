@@ -10,292 +10,496 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Top Header & Brand Emblem -->
+        <!-- Top Header (Matching Image 3 Reference) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="20dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="12dp">
+            android:paddingTop="18dp"
+            android:paddingBottom="10dp">
 
-            <ImageView
-                android:id="@+id/imgLogo"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_darkr_logo"
-                android:contentDescription="@string/app_name" />
-
-            <LinearLayout
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="14dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/app_name"
-                    android:textColor="@color/text_white"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.08" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Black out screen. Keep listening."
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11.5sp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvStatusBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_badge_inactive"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:text="READY"
-                android:textColor="@color/text_muted"
-                android:textSize="10sp"
+                android:text="@string/app_name"
+                android:textColor="@color/text_white"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.08" />
+                android:letterSpacing="0.02" />
 
             <ImageView
                 android:id="@+id/btnMenuMore"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:padding="6dp"
                 android:src="@drawable/ic_more_vert"
-                android:tint="@color/text_secondary"
+                android:tint="@color/text_white"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Menu" />
         </LinearLayout>
 
-        <!-- Dynamic Tab Content Viewport -->
-        <FrameLayout
+        <!-- Scrollable Body -->
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:fillViewport="true">
 
-            <!-- ================= TAB 1: HOME ================= -->
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/layoutTabHome"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fillViewport="true"
-                android:visibility="visible">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="20dp">
 
+                <!-- Interactive Phone Mockup Preview Frame (Matching Image 3 Reference) -->
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/cardPhoneMockup"
+                    android:layout_width="160dp"
+                    android:layout_height="240dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="18dp"
+                    android:background="@drawable/bg_card_dark"
+                    android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingHorizontal="20dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="24dp">
+                    android:clickable="true"
+                    android:focusable="true">
 
-                    <!-- Android 13/14 Permission Helper Card -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/cardPermission"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/tvMockupTime"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="18dp"
-                        android:visibility="gone"
-                        app:cardBackgroundColor="@color/card_dark"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="0dp">
+                        android:text="8:05"
+                        android:textColor="#F0FFFFFF"
+                        android:textSize="32sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium" />
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="16dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="⚠️ OVERLAY PERMISSION REQUIRED"
-                                android:textColor="@color/text_white"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:text="Grant 'Display over other apps' so Darkr can black out your screen over videos and media."
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11.5sp" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnGrantPermission"
-                                android:layout_width="match_parent"
-                                android:layout_height="44dp"
-                                android:layout_marginTop="12dp"
-                                android:backgroundTint="@color/white_pure"
-                                android:text="1. GRANT PERMISSION"
-                                android:textColor="@color/black_true"
-                                android:textSize="11.5sp"
-                                android:textStyle="bold"
-                                app:cornerRadius="10dp" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnOpenAppSettings"
-                                android:layout_width="match_parent"
-                                android:layout_height="38dp"
-                                android:layout_marginTop="8dp"
-                                android:backgroundTint="@color/card_dark_elevated"
-                                android:text="2. IF BLOCKED: UNBLOCK IN APP SETTINGS"
-                                android:textColor="@color/white_pure"
-                                android:textSize="10.5sp"
-                                android:textStyle="bold"
-                                app:cornerRadius="10dp" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
-
-                    <!-- MASTER HERO START/STOP CARD -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/tvMockupDate"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_dark"
-                        android:orientation="vertical"
-                        android:padding="22dp"
-                        android:gravity="center"
-                        android:layout_marginBottom="16dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="FLOATING BLACKOUT BUTTON"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.1" />
-
-                        <TextView
-                            android:id="@+id/tvServiceSubtitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Floating Ghost Orb is stopped"
-                            android:textColor="@color/text_muted"
-                            android:textSize="12sp" />
-
-                        <!-- Big Circular START / STOP Button -->
-                        <FrameLayout
-                            android:id="@+id/btnMasterServiceCircle"
-                            android:layout_width="110dp"
-                            android:layout_height="110dp"
-                            android:layout_marginTop="20dp"
-                            android:layout_marginBottom="20dp"
-                            android:background="@drawable/bg_action_circle"
-                            android:clickable="true"
-                            android:focusable="true">
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <ImageView
-                                    android:id="@+id/imgServiceStateIcon"
-                                    android:layout_width="32dp"
-                                    android:layout_height="32dp"
-                                    android:src="@drawable/ic_darkr_logo"
-                                    android:contentDescription="Start" />
-
-                                <TextView
-                                    android:id="@+id/tvServiceButtonText"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="6dp"
-                                    android:text="START"
-                                    android:textColor="@color/text_white"
-                                    android:textSize="13sp"
-                                    android:textStyle="bold"
-                                    android:letterSpacing="0.1" />
-                            </LinearLayout>
-                        </FrameLayout>
-
-                        <!-- Direct Blacken Screen Now CTA -->
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnBlackenScreenNow"
-                            android:layout_width="match_parent"
-                            android:layout_height="52dp"
-                            android:backgroundTint="@color/white_pure"
-                            android:text="BLACKEN SCREEN NOW"
-                            android:textColor="@color/black_true"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.08"
-                            app:cornerRadius="14dp" />
-                    </LinearLayout>
-
-                    <!-- Quick Status / Tips Card -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_dark"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="💡 QUICK TIP"
-                            android:textColor="@color/white_pure"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.08" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="Tap START above to enable the Floating Ghost Orb over YouTube/Spotify. Tap the screen anytime to show the unlock button."
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
-                            android:lineSpacingExtra="3dp" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </androidx.core.widget.NestedScrollView>
-
-            <!-- ================= TAB 2: STATS ================= -->
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/layoutTabStats"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fillViewport="true"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="20dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="24dp">
+                        android:layout_marginTop="2dp"
+                        android:text="Tue, Sep 1"
+                        android:textColor="#85FFFFFF"
+                        android:textSize="10.5sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="AMOLED BATTERY &amp; USAGE STATS"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp"
+                        android:layout_marginTop="48dp"
+                        android:text="UNLOCK"
+                        android:textColor="#65FFFFFF"
+                        android:textSize="9sp"
                         android:textStyle="bold"
-                        android:letterSpacing="0.1"
-                        android:layout_marginBottom="14dp" />
+                        android:letterSpacing="0.12" />
+                </LinearLayout>
 
-                    <!-- Big Battery Saved Hero Card -->
+                <!-- Sub-Navigation 3 Tabs (Look & Feel | Settings | Stats) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <!-- Tab 1: Look & Feel -->
+                    <LinearLayout
+                        android:id="@+id/tabBtnLookFeel"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tvTabLookFeel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Look &amp; Feel"
+                            android:textColor="@color/white_pure"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:id="@+id/indicatorLookFeel"
+                            android:layout_width="32dp"
+                            android:layout_height="2.5dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@color/white_pure" />
+                    </LinearLayout>
+
+                    <!-- Tab 2: Settings -->
+                    <LinearLayout
+                        android:id="@+id/tabBtnSettings"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tvTabSettings"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Settings"
+                            android:textColor="@color/text_muted"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:id="@+id/indicatorSettings"
+                            android:layout_width="32dp"
+                            android:layout_height="2.5dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@color/white_pure"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+
+                    <!-- Tab 3: Stats -->
+                    <LinearLayout
+                        android:id="@+id/tabBtnStats"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tvTabStats"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Stats"
+                            android:textColor="@color/text_muted"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:id="@+id/indicatorStats"
+                            android:layout_width="32dp"
+                            android:layout_height="2.5dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@color/white_pure"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/card_dark_stroke"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- ================= TAB CONTENT 1: LOOK & FEEL ================= -->
+                <LinearLayout
+                    android:id="@+id/contentLookFeel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Black Screen Mode"
+                        android:textColor="@color/text_white"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Mode Cards (Full Screen / Privacy Mode) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="18dp">
+
+                        <!-- Mode 1: Full Screen -->
+                        <LinearLayout
+                            android:id="@+id/cardModeFullScreen"
+                            android:layout_width="0dp"
+                            android:layout_height="100dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_card_selected"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:src="@drawable/ic_blackout"
+                                android:tint="@color/white_pure"
+                                android:contentDescription="Full Screen" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Full Screen"
+                                android:textColor="@color/white_pure"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Mode 2: Privacy Mode -->
+                        <LinearLayout
+                            android:id="@+id/cardModePrivacy"
+                            android:layout_width="0dp"
+                            android:layout_height="100dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_card_dark"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:src="@drawable/ic_shield"
+                                android:tint="@color/text_muted"
+                                android:contentDescription="Privacy Mode" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Privacy Mode"
+                                android:textColor="@color/text_muted"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clock Style"
+                        android:textColor="@color/text_white"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Clock Style Cards -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/cardStyleStandard"
+                            android:layout_width="0dp"
+                            android:layout_height="64dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_card_selected"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="8:05"
+                                android:textColor="@color/white_pure"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-medium" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/cardStyleBold"
+                            android:layout_width="0dp"
+                            android:layout_height="64dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_card_dark"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="8:05"
+                                android:textColor="@color/text_muted"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ================= TAB CONTENT 2: SETTINGS ================= -->
+                <LinearLayout
+                    android:id="@+id/contentSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <!-- Setting 1: Show Clock -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card_dark"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Show Clock &amp; Battery"
+                            android:textColor="@color/text_white"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchClock"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:thumbTint="@color/white_pure"
+                            app:trackTint="@color/text_subtle" />
+                    </LinearLayout>
+
+                    <!-- Setting 2: 24-Hour Format -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card_dark"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="24-Hour Format"
+                            android:textColor="@color/text_white"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch24Hour"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:thumbTint="@color/white_pure"
+                            app:trackTint="@color/text_subtle" />
+                    </LinearLayout>
+
+                    <!-- Setting 3: Show Date -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card_dark"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Show Date"
+                            android:textColor="@color/text_white"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchShowDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:thumbTint="@color/white_pure"
+                            app:trackTint="@color/text_subtle" />
+                    </LinearLayout>
+
+                    <!-- Setting 4: Smart Pocket Mode -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card_dark"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Smart Pocket Auto-Blackout"
+                            android:textColor="@color/text_white"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchPocket"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:thumbTint="@color/white_pure"
+                            app:trackTint="@color/text_subtle" />
+                    </LinearLayout>
+
+                    <!-- Setting 5: Haptic Vibration -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card_dark"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Haptic Vibration"
+                            android:textColor="@color/text_white"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchVibration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:thumbTint="@color/white_pure"
+                            app:trackTint="@color/text_subtle" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ================= TAB CONTENT 3: STATS ================= -->
+                <LinearLayout
+                    android:id="@+id/contentStats"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <!-- Battery Saved Card -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -317,22 +521,14 @@
                             android:id="@+id/tvStatsBatterySaved"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="6dp"
                             android:text="~0% Saved (0 mAh)"
                             android:textColor="@color/text_white"
                             android:textSize="26sp"
                             android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Calculated from OLED pixel power reduction"
-                            android:textColor="@color/text_muted"
-                            android:textSize="11.5sp" />
                     </LinearLayout>
 
-                    <!-- Blackout Duration Card -->
+                    <!-- Duration Card -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -354,8 +550,7 @@
                                 android:text="TODAY'S BLACKOUT"
                                 android:textColor="@color/text_secondary"
                                 android:textSize="10.5sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.08" />
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvStatsTodayDuration"
@@ -364,13 +559,13 @@
                                 android:layout_marginTop="4dp"
                                 android:text="0s"
                                 android:textColor="@color/text_white"
-                                android:textSize="20sp"
+                                android:textSize="18sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
 
                         <View
                             android:layout_width="1dp"
-                            android:layout_height="40dp"
+                            android:layout_height="36dp"
                             android:background="@color/card_dark_stroke"
                             android:layout_marginHorizontal="16dp" />
 
@@ -386,8 +581,7 @@
                                 android:text="TOTAL BLACKOUT"
                                 android:textColor="@color/text_secondary"
                                 android:textSize="10.5sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.08" />
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvStatsTotalDuration"
@@ -396,7 +590,7 @@
                                 android:layout_marginTop="4dp"
                                 android:text="0s"
                                 android:textColor="@color/text_white"
-                                android:textSize="20sp"
+                                android:textSize="18sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
@@ -407,397 +601,118 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_card_dark"
                         android:orientation="vertical"
-                        android:padding="18dp"
-                        android:layout_marginBottom="12dp">
+                        android:padding="16dp"
+                        android:layout_marginBottom="16dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="TOTAL SESSIONS COMPLETED"
+                            android:text="TOTAL BLACKOUT SESSIONS"
                             android:textColor="@color/text_secondary"
                             android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.08" />
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tvStatsTotalSessions"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="0 Blackout Sessions"
+                            android:layout_marginTop="4dp"
+                            android:text="0 Sessions"
                             android:textColor="@color/text_white"
                             android:textSize="18sp"
                             android:textStyle="bold" />
                     </LinearLayout>
+                </LinearLayout>
 
-                    <!-- Explainer Card -->
+                <!-- Android 13/14 Permission Helper (Shown only when needed) -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardPermission"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/card_dark"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_dark"
                         android:orientation="vertical"
                         android:padding="16dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="ℹ️ HOW AMOLED SAVING WORKS"
-                            android:textColor="@color/white_pure"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.08" />
+                            android:text="OVERLAY PERMISSION REQUIRED"
+                            android:textColor="@color/text_white"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="OLED and AMOLED screens light up individual sub-pixels. When Darkr displays pure black (#000000), those pixels physically turn off, saving up to 60-80% of screen battery drain."
-                            android:textColor="@color/text_secondary"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnGrantPermission"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="10dp"
+                            android:backgroundTint="@color/white_pure"
+                            android:text="GRANT OVERLAY PERMISSION"
+                            android:textColor="@color/black_true"
                             android:textSize="11.5sp"
-                            android:lineSpacingExtra="3dp" />
+                            android:textStyle="bold"
+                            app:cornerRadius="10dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnOpenAppSettings"
+                            android:layout_width="match_parent"
+                            android:layout_height="38dp"
+                            android:layout_marginTop="6dp"
+                            android:backgroundTint="@color/card_dark_elevated"
+                            android:text="UNBLOCK IN APP SETTINGS"
+                            android:textColor="@color/white_pure"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="10dp" />
                     </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-                </LinearLayout>
-            </androidx.core.widget.NestedScrollView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
-            <!-- ================= TAB 3: SETTINGS ================= -->
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/layoutTabSettings"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fillViewport="true"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="20dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="24dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="BLACKOUT SCREEN DISPLAY"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.1"
-                        android:layout_marginBottom="12dp" />
-
-                    <!-- Setting 1: Show Clock -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_dark"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="10dp">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Show Clock &amp; Battery"
-                                android:textColor="@color/text_white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Displays subtle clock on blackout"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switchClock"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:thumbTint="@color/white_pure"
-                            app:trackTint="@color/text_subtle" />
-                    </LinearLayout>
-
-                    <!-- Setting 2: 24-Hour Format -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_dark"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="10dp">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="24-Hour Format"
-                                android:textColor="@color/text_white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Display time as 19:30 instead of 07:30 PM"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switch24Hour"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:thumbTint="@color/white_pure"
-                            app:trackTint="@color/text_subtle" />
-                    </LinearLayout>
-
-                    <!-- Setting 3: Show Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_dark"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="10dp">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Show Day &amp; Date"
-                                android:textColor="@color/text_white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Show full day, month, and date on screen"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switchShowDate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:thumbTint="@color/white_pure"
-                            app:trackTint="@color/text_subtle" />
-                    </LinearLayout>
-
-                    <!-- Setting 4: Smart Pocket Mode -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_dark"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="10dp">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Smart Pocket Auto-Blackout"
-                                android:textColor="@color/text_white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Auto-blackouts in pocket or face-down on table"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switchPocket"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:thumbTint="@color/white_pure"
-                            app:trackTint="@color/text_subtle" />
-                    </LinearLayout>
-
-                    <!-- Setting 5: Haptic Feedback -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_dark"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="24dp">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Haptic Vibration"
-                                android:textColor="@color/text_white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Vibrate on blackout toggle &amp; unlock"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switchVibration"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:thumbTint="@color/white_pure"
-                            app:trackTint="@color/text_subtle" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </androidx.core.widget.NestedScrollView>
-
-        </FrameLayout>
-
-        <!-- BOTTOM 3-TAB NAVIGATION BAR -->
+        <!-- BOTTOM ACTION CONTROLLER (Matching Image 3 Bottom Placement) -->
         <LinearLayout
-            android:id="@+id/bottomNavContainer"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:background="@color/card_dark"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_height="wrap_content"
+            android:background="@color/black_true"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="20dp">
 
-            <!-- Tab 1 Button: HOME -->
-            <LinearLayout
-                android:id="@+id/navTabHome"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
+            <!-- Big Start / Stop Button (Matching Image 3) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMasterBottomAction"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:backgroundTint="@color/white_pure"
+                android:text="Start"
+                android:textColor="@color/black_true"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.04"
+                app:cornerRadius="27dp" />
 
-                <ImageView
-                    android:id="@+id/imgNavHome"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:src="@drawable/ic_nav_home"
-                    android:tint="@color/white_pure"
-                    android:contentDescription="Home" />
-
-                <TextView
-                    android:id="@+id/tvNavHome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="HOME"
-                    android:textColor="@color/white_pure"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.08" />
-            </LinearLayout>
-
-            <!-- Tab 2 Button: STATS -->
-            <LinearLayout
-                android:id="@+id/navTabStats"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/imgNavStats"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:src="@drawable/ic_nav_stats"
-                    android:tint="@color/text_muted"
-                    android:contentDescription="Stats" />
-
-                <TextView
-                    android:id="@+id/tvNavStats"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="STATS"
-                    android:textColor="@color/text_muted"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.08" />
-            </LinearLayout>
-
-            <!-- Tab 3 Button: SETTINGS -->
-            <LinearLayout
-                android:id="@+id/navTabSettings"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/imgNavSettings"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:src="@drawable/ic_nav_settings"
-                    android:tint="@color/text_muted"
-                    android:contentDescription="Settings" />
-
-                <TextView
-                    android:id="@+id/tvNavSettings"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="SETTINGS"
-                    android:textColor="@color/text_muted"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.08" />
-            </LinearLayout>
-
+            <!-- Direct Blacken Screen Trigger -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBlackenScreenNow"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/card_dark_elevated"
+                android:text="Blacken Screen Now"
+                android:textColor="@color/white_pure"
+                android:textSize="12.5sp"
+                android:textStyle="bold"
+                app:cornerRadius="21dp" />
         </LinearLayout>
 
     </LinearLayout>

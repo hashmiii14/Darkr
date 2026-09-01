@@ -21,10 +21,17 @@ import com.darkr.app.util.DarkrStateManager
 import com.darkr.app.util.PreferencesManager
 import com.darkr.app.util.StatsManager
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
- * Darkr 3-Tab Primary Dashboard Activity (Home, Stats, Settings).
- * Synchronizes real-time state with DarkrStateManager, StatsManager, and DarkrOverlayService.
+ * Darkr Primary Dashboard Activity.
+ * Pixel-perfect implementation matching Black Screen by japp.io layout:
+ * - Top header with Darkr title and 3-dots menu
+ * - Center interactive Phone Mockup preview frame
+ * - 3 Sub-tabs (Look & Feel | Settings | Stats)
+ * - Prominent bottom "Start" / "Stop" button
  */
 class MainActivity : AppCompatActivity() {
 
@@ -32,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: PreferencesManager
     private lateinit var statsManager: StatsManager
 
-    private var currentTab = TAB_HOME
+    private var currentTab = TAB_LOOK_FEEL
     private var isUpdatingSwitchesProgrammatically = false
 
     private val overlayPermissionLauncher = registerForActivityResult(
@@ -58,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigationTabs()
         setupUI()
         setupSettingsSwitches()
+        updateMockupPreview()
         observeState()
         checkPermissions()
         requestNotificationPermissionIfNeeded()
@@ -66,37 +74,38 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkPermissions()
+        updateMockupPreview()
         refreshStats()
     }
 
     private fun setupNavigationTabs() {
-        binding.navTabHome.setOnClickListener { switchTab(TAB_HOME) }
-        binding.navTabStats.setOnClickListener { switchTab(TAB_STATS) }
-        binding.navTabSettings.setOnClickListener { switchTab(TAB_SETTINGS) }
+        binding.tabBtnLookFeel.setOnClickListener { switchTab(TAB_LOOK_FEEL) }
+        binding.tabBtnSettings.setOnClickListener { switchTab(TAB_SETTINGS) }
+        binding.tabBtnStats.setOnClickListener { switchTab(TAB_STATS) }
     }
 
     private fun switchTab(tab: Int) {
         currentTab = tab
 
-        binding.layoutTabHome.visibility = if (tab == TAB_HOME) View.VISIBLE else View.GONE
-        binding.layoutTabStats.visibility = if (tab == TAB_STATS) View.VISIBLE else View.GONE
-        binding.layoutTabSettings.visibility = if (tab == TAB_SETTINGS) View.VISIBLE else View.GONE
+        binding.contentLookFeel.visibility = if (tab == TAB_LOOK_FEEL) View.VISIBLE else View.GONE
+        binding.contentSettings.visibility = if (tab == TAB_SETTINGS) View.VISIBLE else View.GONE
+        binding.contentStats.visibility = if (tab == TAB_STATS) View.VISIBLE else View.GONE
 
         val colorActive = ContextCompat.getColor(this, R.color.white_pure)
         val colorInactive = ContextCompat.getColor(this, R.color.text_muted)
 
-        // Tab 1: Home
-        binding.imgNavHome.setColorFilter(if (tab == TAB_HOME) colorActive else colorInactive)
-        binding.tvNavHome.setTextColor(if (tab == TAB_HOME) colorActive else colorInactive)
+        // Tab 1: Look & Feel
+        binding.tvTabLookFeel.setTextColor(if (tab == TAB_LOOK_FEEL) colorActive else colorInactive)
+        binding.indicatorLookFeel.visibility = if (tab == TAB_LOOK_FEEL) View.VISIBLE else View.INVISIBLE
 
-        // Tab 2: Stats
-        binding.imgNavStats.setColorFilter(if (tab == TAB_STATS) colorActive else colorInactive)
-        binding.tvNavStats.setTextColor(if (tab == TAB_STATS) colorActive else colorInactive)
+        // Tab 2: Settings
+        binding.tvTabSettings.setTextColor(if (tab == TAB_SETTINGS) colorActive else colorInactive)
+        binding.indicatorSettings.visibility = if (tab == TAB_SETTINGS) View.VISIBLE else View.INVISIBLE
+
+        // Tab 3: Stats
+        binding.tvTabStats.setTextColor(if (tab == TAB_STATS) colorActive else colorInactive)
+        binding.indicatorStats.visibility = if (tab == TAB_STATS) View.VISIBLE else View.INVISIBLE
         if (tab == TAB_STATS) refreshStats()
-
-        // Tab 3: Settings
-        binding.imgNavSettings.setColorFilter(if (tab == TAB_SETTINGS) colorActive else colorInactive)
-        binding.tvNavSettings.setTextColor(if (tab == TAB_SETTINGS) colorActive else colorInactive)
     }
 
     private fun setupUI() {
@@ -108,8 +117,8 @@ class MainActivity : AppCompatActivity() {
             openAppDetailsSettings()
         }
 
-        // Master Floating Service Start/Stop Button
-        binding.btnMasterServiceCircle.setOnClickListener {
+        // Bottom Master Start/Stop Button (Matching Image 3)
+        binding.btnMasterBottomAction.setOnClickListener {
             if (!hasOverlayPermission()) {
                 requestOverlayPermission()
                 return@setOnClickListener
@@ -124,72 +133,54 @@ class MainActivity : AppCompatActivity() {
 
         // Direct Blacken Screen CTA
         binding.btnBlackenScreenNow.setOnClickListener {
-            if (!hasOverlayPermission()) {
-                requestOverlayPermission()
-                return@setOnClickListener
-            }
-
-            ensureServiceStarted()
-            sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_BLACKOUT)
+            triggerBlackoutDirectly()
         }
 
-        // Top-Right 3-Dots More Menu
+        // Tapping the Phone Mockup preview also triggers blackout directly
+        binding.cardPhoneMockup.setOnClickListener {
+            triggerBlackoutDirectly()
+        }
+
+        // Mode Cards Selection
+        binding.cardModeFullScreen.setOnClickListener {
+            binding.cardModeFullScreen.setBackgroundResource(R.drawable.bg_card_selected)
+            binding.cardModePrivacy.setBackgroundResource(R.drawable.bg_card_dark)
+        }
+
+        binding.cardModePrivacy.setOnClickListener {
+            binding.cardModeFullScreen.setBackgroundResource(R.drawable.bg_card_dark)
+            binding.cardModePrivacy.setBackgroundResource(R.drawable.bg_card_selected)
+            if (hasOverlayPermission()) {
+                ensureServiceStarted()
+                sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_SHIELD)
+            }
+        }
+
+        // Clock Style Selection
+        binding.cardStyleStandard.setOnClickListener {
+            binding.cardStyleStandard.setBackgroundResource(R.drawable.bg_card_selected)
+            binding.cardStyleBold.setBackgroundResource(R.drawable.bg_card_dark)
+        }
+
+        binding.cardStyleBold.setOnClickListener {
+            binding.cardStyleStandard.setBackgroundResource(R.drawable.bg_card_dark)
+            binding.cardStyleBold.setBackgroundResource(R.drawable.bg_card_selected)
+        }
+
+        // Top-Right 3-Dots Menu
         binding.btnMenuMore.setOnClickListener { view ->
             showMoreMenu(view)
         }
     }
 
-    private fun showMoreMenu(anchor: View) {
-        val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
-        popup.menu.add(0, 1, 0, "About Darkr")
-        popup.menu.add(0, 2, 1, "Help & FAQ")
-        popup.menu.add(0, 3, 2, "Reset Statistics")
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                1 -> showAboutDialog()
-                2 -> showHelpDialog()
-                3 -> resetStatistics()
-            }
-            true
+    private fun triggerBlackoutDirectly() {
+        if (!hasOverlayPermission()) {
+            requestOverlayPermission()
+            return
         }
-        popup.show()
-    }
 
-    private fun showAboutDialog() {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("About Darkr")
-            .setMessage(
-                "Darkr v2.0.0 (Production Release)\n\n" +
-                "Best-in-class, privacy-first screen blackout utility for OLED/AMOLED displays.\n\n" +
-                "• 100% Free Forever\n" +
-                "• Zero Ads & Zero Tracking\n" +
-                "• 100% Offline (No Internet Permission)\n" +
-                "• Open Source under Apache 2.0\n\n" +
-                "Repository:\nhttps://github.com/hashmiii14/Darkr"
-            )
-            .setPositiveButton("Close", null)
-            .show()
-    }
-
-    private fun showHelpDialog() {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Darkr Help & FAQ")
-            .setMessage(
-                "1. How to use with YouTube / Spotify:\n" +
-                "Start your video or audio, then tap the Floating Ghost Orb or 'BLACKEN SCREEN NOW' to turn your screen completely black while audio keeps playing.\n\n" +
-                "2. How to unlock:\n" +
-                "Tap anywhere on the black screen to reveal the bottom 'Tap to Unlock' button, then tap it to restore the screen.\n\n" +
-                "3. AMOLED Battery Savings:\n" +
-                "On OLED/AMOLED screens, pure black pixels physically turn off, saving up to 60-80% of display battery."
-            )
-            .setPositiveButton("Got It", null)
-            .show()
-    }
-
-    private fun resetStatistics() {
-        getSharedPreferences("darkr_stats_prefs", MODE_PRIVATE).edit().clear().apply()
-        refreshStats()
-        Toast.makeText(this, "Statistics reset successfully", Toast.LENGTH_SHORT).show()
+        ensureServiceStarted()
+        sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_BLACKOUT)
     }
 
     private fun setupSettingsSwitches() {
@@ -199,18 +190,21 @@ class MainActivity : AppCompatActivity() {
             if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isClockEnabled = isChecked
             DarkrStateManager.setClockActive(isChecked)
+            updateMockupPreview()
         }
 
         // 24-Hour Switch
         binding.switch24Hour.isChecked = prefs.isTime24Hour
         binding.switch24Hour.setOnCheckedChangeListener { _, isChecked ->
             prefs.isTime24Hour = isChecked
+            updateMockupPreview()
         }
 
         // Show Date Switch
         binding.switchShowDate.isChecked = prefs.isShowDate
         binding.switchShowDate.setOnCheckedChangeListener { _, isChecked ->
             prefs.isShowDate = isChecked
+            updateMockupPreview()
         }
 
         // Pocket Mode Switch
@@ -231,19 +225,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateMockupPreview() {
+        val now = Date()
+        val pattern = if (prefs.isTime24Hour) "HH:mm" else "h:mm"
+        val timeFormat = SimpleDateFormat(pattern, Locale.getDefault())
+        val dateFormat = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
+
+        binding.tvMockupTime.text = timeFormat.format(now)
+        binding.tvMockupDate.text = dateFormat.format(now)
+        binding.tvMockupDate.visibility = if (prefs.isShowDate) View.VISIBLE else View.GONE
+    }
+
     private fun observeState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     DarkrStateManager.isServiceRunning.collect { isRunning ->
                         updateMasterServiceUI(isRunning)
-                        updateTelemetryUI()
                     }
                 }
                 launch {
                     DarkrStateManager.isBlackoutActive.collect { isBlackout ->
                         updateBlackoutCTA(isBlackout)
-                        updateTelemetryUI()
                         if (!isBlackout) refreshStats()
                     }
                 }
@@ -253,50 +256,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateMasterServiceUI(isRunning: Boolean) {
         if (isRunning) {
-            binding.tvServiceButtonText.text = "STOP"
-            binding.tvServiceButtonText.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
-            binding.tvServiceSubtitle.text = "Floating Ghost Orb is active over apps"
-            binding.imgServiceStateIcon.setImageResource(R.drawable.ic_blackout)
+            binding.btnMasterBottomAction.text = "Stop"
+            binding.btnMasterBottomAction.setBackgroundColor(ContextCompat.getColor(this, R.color.card_dark_elevated))
+            binding.btnMasterBottomAction.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
         } else {
-            binding.tvServiceButtonText.text = "START"
-            binding.tvServiceButtonText.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
-            binding.tvServiceSubtitle.text = "Tap START to enable Floating Ghost Orb"
-            binding.imgServiceStateIcon.setImageResource(R.drawable.ic_darkr_logo)
+            binding.btnMasterBottomAction.text = "Start"
+            binding.btnMasterBottomAction.setBackgroundColor(ContextCompat.getColor(this, R.color.white_pure))
+            binding.btnMasterBottomAction.setTextColor(ContextCompat.getColor(this, R.color.black_true))
         }
     }
 
     private fun updateBlackoutCTA(isBlackout: Boolean) {
         if (isBlackout) {
-            binding.btnBlackenScreenNow.text = "RESTORE SCREEN"
-            binding.btnBlackenScreenNow.setBackgroundColor(ContextCompat.getColor(this, R.color.card_dark_elevated))
-            binding.btnBlackenScreenNow.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
+            binding.btnBlackenScreenNow.text = "Restore Screen"
         } else {
-            binding.btnBlackenScreenNow.text = "BLACKEN SCREEN NOW"
-            binding.btnBlackenScreenNow.setBackgroundColor(ContextCompat.getColor(this, R.color.white_pure))
-            binding.btnBlackenScreenNow.setTextColor(ContextCompat.getColor(this, R.color.black_true))
-        }
-    }
-
-    private fun updateTelemetryUI() {
-        val isBlackout = DarkrStateManager.isBlackoutActive.value
-        val isServiceRunning = DarkrStateManager.isServiceRunning.value
-
-        when {
-            isBlackout -> {
-                binding.tvStatusBadge.text = "BLACKOUT ACTIVE"
-                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
-                binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
-            }
-            isServiceRunning -> {
-                binding.tvStatusBadge.text = "GHOST ORB ON"
-                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
-                binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
-            }
-            else -> {
-                binding.tvStatusBadge.text = "READY"
-                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_inactive)
-                binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
-            }
+            binding.btnBlackenScreenNow.text = "Blacken Screen Now"
         }
     }
 
@@ -310,7 +284,60 @@ class MainActivity : AppCompatActivity() {
         binding.tvStatsBatterySaved.text = "~$savedPercent% Saved ($savedMah mAh)"
         binding.tvStatsTodayDuration.text = statsManager.formatDuration(todaySecs)
         binding.tvStatsTotalDuration.text = statsManager.formatDuration(totalSecs)
-        binding.tvStatsTotalSessions.text = "$totalSessions Blackout Sessions"
+        binding.tvStatsTotalSessions.text = "$totalSessions Sessions"
+    }
+
+    private fun showMoreMenu(anchor: View) {
+        val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
+        popup.menu.add(0, 1, 0, "About Darkr")
+        popup.menu.add(0, 2, 1, "Help")
+        popup.menu.add(0, 3, 2, "Reset Statistics")
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> showAboutDialog()
+                2 -> showHelpDialog()
+                3 -> resetStatistics()
+            }
+            true
+        }
+        popup.show()
+    }
+
+    private fun showAboutDialog() {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("About Darkr")
+            .setMessage(
+                "Darkr v2.0.0 (Production Release)\n\n" +
+                "Best-in-class AMOLED screen blackout utility.\n\n" +
+                "• 100% Free Forever\n" +
+                "• Zero Ads & Zero Tracking\n" +
+                "• 100% Offline (No Internet Permission)\n" +
+                "• Open Source under Apache 2.0\n\n" +
+                "Repository:\nhttps://github.com/hashmiii14/Darkr"
+            )
+            .setPositiveButton("Close", null)
+            .show()
+    }
+
+    private fun showHelpDialog() {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Help & Info")
+            .setMessage(
+                "1. How to use with YouTube / Spotify:\n" +
+                "Start media, tap the floating button or 'Blacken Screen Now' to black out your screen while audio continues.\n\n" +
+                "2. How to unlock:\n" +
+                "Tap anywhere on the black screen to highlight the bottom 'UNLOCK' button, then tap UNLOCK.\n\n" +
+                "3. Battery Savings:\n" +
+                "On OLED/AMOLED screens, pure black pixels physically turn off, saving up to 60-80% display power."
+            )
+            .setPositiveButton("Got It", null)
+            .show()
+    }
+
+    private fun resetStatistics() {
+        getSharedPreferences("darkr_stats_prefs", MODE_PRIVATE).edit().clear().apply()
+        refreshStats()
+        Toast.makeText(this, "Statistics reset successfully", Toast.LENGTH_SHORT).show()
     }
 
     private fun hasOverlayPermission(): Boolean {
@@ -396,8 +423,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAB_HOME = 0
-        private const val TAB_STATS = 1
-        private const val TAB_SETTINGS = 2
+        private const val TAB_LOOK_FEEL = 0
+        private const val TAB_SETTINGS = 1
+        private const val TAB_STATS = 2
     }
 }

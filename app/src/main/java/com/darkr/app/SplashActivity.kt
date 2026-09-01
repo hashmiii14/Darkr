@@ -11,7 +11,7 @@ import com.darkr.app.databinding.ActivitySplashBinding
 
 /**
  * Startup Splash Loading Screen.
- * Renders an animated Darkr emblem and progress loader before launching the main dashboard.
+ * Runs a 3.5s smooth animated loading process before transitioning into the main dashboard.
  */
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
@@ -24,33 +24,41 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Smooth entry animation
+        // Smooth entry animation on logo
         binding.imgSplashLogo.alpha = 0f
-        binding.imgSplashLogo.scaleX = 0.8f
-        binding.imgSplashLogo.scaleY = 0.8f
+        binding.imgSplashLogo.scaleX = 0.75f
+        binding.imgSplashLogo.scaleY = 0.75f
         binding.tvSplashTitle.alpha = 0f
 
         binding.imgSplashLogo.animate()
             .alpha(1f)
             .scaleX(1f)
             .scaleY(1f)
-            .setDuration(700)
+            .setDuration(800)
             .setInterpolator(AccelerateDecelerateInterpolator())
             .start()
 
         binding.tvSplashTitle.animate()
             .alpha(1f)
             .setDuration(800)
-            .setStartDelay(200)
+            .setStartDelay(250)
             .start()
 
-        // 1.1s delay to smooth loading transition
+        // 3.5 seconds total loading delay
+        handler.postDelayed({
+            binding.tvLoadingStatus.text = "Initializing AMOLED Engine..."
+        }, 1200)
+
+        handler.postDelayed({
+            binding.tvLoadingStatus.text = "Starting Darkr..."
+        }, 2400)
+
         handler.postDelayed({
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             finish()
-        }, 1100)
+        }, 3500)
     }
 
     override fun onDestroy() {

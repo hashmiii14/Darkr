@@ -12,7 +12,7 @@ import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.view.GestureDetector
+import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -29,13 +29,8 @@ import java.util.Locale
 
 /**
  * 100% Zero-Leak Pure AMOLED Blackout Engine.
- * Features:
- * - Complete screen blackout covering status bar, navigation bar, and display cutouts.
- * - Minimalist centered World Clock, Day/Date/Month, and live Battery percentage.
- * - Tap-to-Reveal bottom unlock pill button with auto-fade timeout.
- * - Double-tap anywhere failsafe wake gesture.
- * - Programmatic pixel-shifting to prevent OLED burn-in.
- * - Accurate session duration tracking with StatsManager.
+ * Covers 100% of the display including status bar, notch, and bottom 3-button navigation bar.
+ * Matches Black Screen by japp.io layout (Centered Time, Date, Battery, and bottom UNLOCK button).
  */
 class BlackoutView(
     private val context: Context,
@@ -50,31 +45,44 @@ class BlackoutView(
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private var pixelShiftIndex = 0
-    private var isUnlockPillVisible = false
 
-    val layoutParams: WindowManager.LayoutParams = overlayManager.createOverlayLayoutParams(
-        width = WindowManager.LayoutParams.MATCH_PARENT,
-        height = WindowManager.LayoutParams.MATCH_PARENT,
-        flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+    // Measure exact physical display dimensions
+    private val realMetrics: DisplayMetrics = DisplayMetrics().apply {
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        @Suppress("DEPRECATION")
+        wm.defaultDisplay.getRealMetrics(this)
+    }
+
+    val layoutParams: WindowManager.LayoutParams = WindowManager.LayoutParams(
+        realMetrics.widthPixels,
+        realMetrics.heightPixels + 300, // Extend past navigation bar to guarantee 100% coverage
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        else
+            @Suppress("DEPRECATION")
+            WindowManager.LayoutParams.TYPE_PHONE,
+        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                WindowManager.LayoutParams.FLAG_FULLSCREEN or
                 WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS or
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
-        format = PixelFormat.OPAQUE
+        PixelFormat.OPAQUE
     ).apply {
         gravity = Gravity.TOP or Gravity.START
+        x = 0
+        y = 0
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+        }
     }
 
     val rootView: View get() = binding.root
 
-    private val fadeUnlockPillRunnable = Runnable {
-        binding.layoutUnlockPill.animate()
-            .alpha(0f)
+    private val fadeUnlockRunnable = Runnable {
+        binding.tvUnlockText.animate()
+            .alpha(0.2f)
             .setDuration(400)
-            .withEndAction {
-                isUnlockPillVisible = false
-            }
             .start()
     }
 
@@ -82,7 +90,7 @@ class BlackoutView(
         override fun run() {
             updateClockDisplay()
             applyBurnInPixelShift()
-            mainHandler.postDelayed(this, 30_000) // Update every 30s
+            mainHandler.postDelayed(this, 30_000)
         }
     }
 
@@ -97,31 +105,20 @@ class BlackoutView(
 
                 if (level >= 0 && scale > 0) {
                     val batteryPct = (level * 100) / scale
-                    val statusText = if (isCharging) "CHARGING ⚡" else "AMOLED SAVING"
-                    binding.tvClockBattery.text = "🔋 $batteryPct% • $statusText"
+                    val icon = if (isCharging) "⚡" else "🔋"
+                    binding.tvClockBattery.text = "$icon $batteryPct%"
                 }
             }
         }
     }
 
-    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onDoubleTap(e: MotionEvent): Boolean {
-            performUnlock()
-            return true
-        }
-
-        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-            revealUnlockPill()
-            return true
-        }
-    })
-
     init {
         statsManager.startBlackoutSession()
         setupImmersiveZeroLeak()
-        setupGestures()
         setupClockDisplay()
         setupUnlockButton()
+
+        binding.tvUnlockText.alpha = 0.2f
     }
 
     private fun setupImmersiveZeroLeak() {
@@ -146,26 +143,6 @@ class BlackoutView(
         }
     }
 
-    private fun setupGestures() {
-        binding.root.setOnTouchListener { _, event ->
-            // Check if touch hits the unlock pill directly
-            if (isUnlockPillVisible && event.action == MotionEvent.ACTION_UP) {
-                val location = IntArray(2)
-                binding.layoutUnlockPill.getLocationOnScreen(location)
-                val x = event.rawX
-                val y = event.rawY
-                if (x >= location[0] && x <= location[0] + binding.layoutUnlockPill.width &&
-                    y >= location[1] && y <= location[1] + binding.layoutUnlockPill.height) {
-                    performUnlock()
-                    return@setOnTouchListener true
-                }
-            }
-
-            gestureDetector.onTouchEvent(event)
-            true
-        }
-    }
-
     private fun setupClockDisplay() {
         if (prefs.isClockEnabled) {
             binding.layoutClockContainer.visibility = View.VISIBLE
@@ -187,24 +164,37 @@ class BlackoutView(
     }
 
     private fun setupUnlockButton() {
-        binding.layoutUnlockPill.setOnClickListener {
+        // Tapping UNLOCK button dismisses the blackout
+        binding.layoutUnlockContainer.setOnClickListener {
             performUnlock()
         }
-    }
 
-    /**
-     * Reveals the bottom unlock pill smoothly when user touches the screen.
-     */
-    private fun revealUnlockPill() {
-        mainHandler.removeCallbacks(fadeUnlockPillRunnable)
-        isUnlockPillVisible = true
-        binding.layoutUnlockPill.animate()
-            .alpha(1f)
-            .setDuration(180)
-            .withEndAction {
-                mainHandler.postDelayed(fadeUnlockPillRunnable, 3500)
+        // Tapping anywhere on the screen highlights the UNLOCK button
+        binding.root.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val location = IntArray(2)
+                binding.layoutUnlockContainer.getLocationOnScreen(location)
+                val x = event.rawX
+                val y = event.rawY
+
+                if (x >= location[0] && x <= location[0] + binding.layoutUnlockContainer.width &&
+                    y >= location[1] && y <= location[1] + binding.layoutUnlockContainer.height) {
+                    performUnlock()
+                    return@setOnTouchListener true
+                }
+
+                // Highlight unlock button smoothly
+                mainHandler.removeCallbacks(fadeUnlockRunnable)
+                binding.tvUnlockText.animate()
+                    .alpha(1f)
+                    .setDuration(150)
+                    .withEndAction {
+                        mainHandler.postDelayed(fadeUnlockRunnable, 3500)
+                    }
+                    .start()
             }
-            .start()
+            true
+        }
     }
 
     private fun performUnlock() {
@@ -215,9 +205,9 @@ class BlackoutView(
 
     private fun updateClockDisplay() {
         val now = Date()
-        val pattern = if (prefs.isTime24Hour) "HH:mm" else "hh:mm a"
+        val pattern = if (prefs.isTime24Hour) "HH:mm" else "h:mm"
         val timeFormat = SimpleDateFormat(pattern, Locale.getDefault())
-        val dateFormat = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
 
         binding.tvClockTime.text = timeFormat.format(now)
         binding.tvClockDate.text = dateFormat.format(now)
@@ -228,7 +218,7 @@ class BlackoutView(
      */
     private fun applyBurnInPixelShift() {
         pixelShiftIndex = (pixelShiftIndex + 1) % 4
-        val shiftAmountDp = 4
+        val shiftAmountDp = 3
         val density = context.resources.displayMetrics.density
         val shiftPx = (shiftAmountDp * density).toInt()
 
@@ -249,12 +239,12 @@ class BlackoutView(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
                 vibratorManager?.defaultVibrator?.vibrate(
-                    VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
+                    VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE)
                 )
             } else {
                 @Suppress("DEPRECATION")
                 val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-                vibrator?.vibrate(30)
+                vibrator?.vibrate(25)
             }
         } catch (e: Exception) {
             // Ignore vibration failure
