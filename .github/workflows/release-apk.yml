@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  issues: write
 
 jobs:
   build:
@@ -34,28 +33,13 @@ jobs:
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Darkr-APK-v1.0
+        name: Darkr-App
         path: app/build/outputs/apk/debug/app-debug.apk
-        retention-days: 90
 
-    - name: Upload to Public File Servers
+    - name: Publish Official GitHub Release
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
-        APK="app/build/outputs/apk/debug/app-debug.apk"
-        
-        echo "Uploading to Catbox..."
-        CB_URL=$(curl -s -F "reqtype=fileupload" -F "fileToUpload=@$APK" https://catbox.moe/user/api.php || echo "")
-        echo "Catbox: $CB_URL"
-        
-        echo "Uploading to 0x0.st..."
-        ZX_URL=$(curl -s -F "file=@$APK" https://0x0.st || echo "")
-        echo "0x0: $ZX_URL"
-        
-        echo "Uploading to bashupload..."
-        BU_URL=$(curl -s -T "$APK" https://bashupload.com/Darkr.apk | grep -o 'https://bashupload.com/[^ ]*' | head -n 1 || echo "")
-        echo "Bashupload: $BU_URL"
-        
-        echo "## 🚀 Darkr Android APK Direct Download Links" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "- **Catbox Direct Link (1-Tap)**: $CB_URL" >> $GITHUB_STEP_SUMMARY
-        echo "- **0x0.st Direct Link**: $ZX_URL" >> $GITHUB_STEP_SUMMARY
-        echo "- **Bashupload Direct Link**: $BU_URL" >> $GITHUB_STEP_SUMMARY
+        cp app/build/outputs/apk/debug/app-debug.apk ./Darkr.apk
+        gh release delete v1.0.0 --yes || true
+        gh release create v1.0.0 ./Darkr.apk --title "Darkr Official APK (v1.0.0)" --notes "### 🌑 Darkr APK Direct Download"
