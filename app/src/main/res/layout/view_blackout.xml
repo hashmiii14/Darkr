@@ -9,7 +9,7 @@
     android:clipToPadding="false"
     android:keepScreenOn="true">
 
-    <!-- Centered Minimalist Typography (Matching Image 2 Reference) -->
+    <!-- Centered Minimalist Typography -->
     <LinearLayout
         android:id="@+id/layoutClockContainer"
         android:layout_width="wrap_content"
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="8:01"
-            android:textColor="#F0FFFFFF"
+            android:textColor="#F5FFFFFF"
             android:textSize="64sp"
             android:textStyle="bold"
             android:fontFamily="sans-serif-medium"
@@ -37,32 +37,30 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="Tue, Sep 1"
-            android:textColor="#90FFFFFF"
+            android:textColor="#A0FFFFFF"
             android:textSize="15sp"
             android:fontFamily="sans-serif-medium"
             android:letterSpacing="0.04" />
 
-        <!-- Battery (e.g. 🔋 81%) -->
+        <!-- Battery (e.g. 81% • SAVING) -->
         <TextView
             android:id="@+id/tvClockBattery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="🔋 81%"
-            android:textColor="#75FFFFFF"
+            android:text="81% • SAVING"
+            android:textColor="#80FFFFFF"
             android:textSize="13sp"
-            android:letterSpacing="0.04" />
+            android:letterSpacing="0.06" />
     </LinearLayout>
 
-    <!-- Bottom UNLOCK Text Button (Matching Image 2 Reference) -->
-    <FrameLayout
+    <!-- Bottom UNLOCK Touch Area (Always visible, large 90dp touch target) -->
+    <LinearLayout
         android:id="@+id/layoutUnlockContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="60dp"
-        android:paddingHorizontal="32dp"
-        android:paddingVertical="14dp"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_gravity="bottom"
+        android:gravity="center"
         android:clickable="true"
         android:focusable="true">
 
@@ -71,10 +69,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="UNLOCK"
-            android:textColor="#D0FFFFFF"
-            android:textSize="14sp"
+            android:textColor="#E0FFFFFF"
+            android:textSize="14.5sp"
             android:textStyle="bold"
-            android:letterSpacing="0.16" />
-    </FrameLayout>
+            android:letterSpacing="0.18"
+            android:alpha="0.8" />
+    </LinearLayout>
 
 </FrameLayout>

@@ -39,6 +39,15 @@
             android:launchMode="singleTop"
             android:theme="@style/Theme.Darkr.NoActionBar" />
 
+        <!-- 100% Zero-Leak Edge-to-Edge Blackout Activity -->
+        <activity
+            android:name=".BlackoutActivity"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:theme="@style/Theme.Darkr.NoActionBar" />
+
         <!-- Core Overlay Foreground Service -->
         <service
             android:name=".service.DarkrOverlayService"

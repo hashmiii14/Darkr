@@ -204,13 +204,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun triggerBlackoutDirectly() {
-        if (!hasOverlayPermission()) {
-            requestOverlayPermission()
-            return
+        try {
+            val intent = Intent(this, BlackoutActivity::class.java)
+            startActivity(intent)
+        } catch (e: Exception) {
+            if (!hasOverlayPermission()) {
+                requestOverlayPermission()
+                return
+            }
+            ensureServiceStarted()
+            sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_BLACKOUT)
         }
-
-        ensureServiceStarted()
-        sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_BLACKOUT)
     }
 
     private fun setupSettingsSwitches() {
@@ -311,13 +315,13 @@ class MainActivity : AppCompatActivity() {
     private fun updateMasterServiceUI(isRunning: Boolean) {
         if (isRunning) {
             binding.btnMasterBottomAction.text = "Stop"
-            binding.btnMasterBottomAction.setBackgroundColor(ContextCompat.getColor(this, R.color.card_dark_elevated))
-            binding.btnMasterBottomAction.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
+            binding.btnMasterBottomAction.setBackgroundColor(android.graphics.Color.parseColor("#27272A"))
+            binding.btnMasterBottomAction.setTextColor(android.graphics.Color.WHITE)
             startAmbientGlowAnimation()
         } else {
             binding.btnMasterBottomAction.text = "Start"
-            binding.btnMasterBottomAction.setBackgroundColor(ContextCompat.getColor(this, R.color.white_pure))
-            binding.btnMasterBottomAction.setTextColor(ContextCompat.getColor(this, R.color.black_true))
+            binding.btnMasterBottomAction.setBackgroundColor(android.graphics.Color.parseColor("#FF6B00"))
+            binding.btnMasterBottomAction.setTextColor(android.graphics.Color.WHITE)
             stopAmbientGlowAnimation()
         }
     }

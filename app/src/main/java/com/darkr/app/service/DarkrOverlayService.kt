@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.darkr.app.BlackoutActivity
 import com.darkr.app.DarkrApplication
 import com.darkr.app.MainActivity
 import com.darkr.app.R
@@ -138,16 +139,23 @@ class DarkrOverlayService : Service() {
     }
 
     fun onBlackoutClicked() {
-        if (blackoutView == null) {
-            blackoutView = BlackoutView(this, overlayManager) {
+        try {
+            val intent = Intent(this, BlackoutActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            if (blackoutView == null) {
+                blackoutView = BlackoutView(this, overlayManager) {
+                    removeBlackout()
+                }
+                blackoutView?.let {
+                    overlayManager.safeAddView(it.rootView, it.layoutParams)
+                    DarkrStateManager.setBlackoutActive(true)
+                }
+            } else {
                 removeBlackout()
             }
-            blackoutView?.let {
-                overlayManager.safeAddView(it.rootView, it.layoutParams)
-                DarkrStateManager.setBlackoutActive(true)
-            }
-        } else {
-            removeBlackout()
         }
     }
 
