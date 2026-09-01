@@ -28,32 +28,28 @@ jobs:
     - name: Build Debug APK
       run: |
         chmod +x ./gradlew
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew :app:assembleDebug --no-daemon
 
-    - name: Copy APK to Root
+    - name: Prepare APK File
       run: |
-        cp app/build/outputs/apk/debug/app-debug.apk ./Darkr.apk
-        mkdir -p docs
-        cp app/build/outputs/apk/debug/app-debug.apk docs/Darkr.apk
-        ls -lh ./Darkr.apk
+        APK_FILE=$(find app/build/outputs/ -name "*.apk" | head -n 1)
+        echo "Found APK: $APK_FILE"
+        cp "$APK_FILE" ./Darkr.apk
 
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Darkr-APK
-        path: ./Darkr.apk
+    - name: Upload to Public Instant Links
+      run: |
+        echo "## 📲 Direct APK Download Links" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        TEMPLINK=$(curl -s -F "file=@./Darkr.apk" https://temp.sh/upload)
+        echo "- **Direct Download (Instant)**: [$TEMPLINK]($TEMPLINK)" >> $GITHUB_STEP_SUMMARY
+        echo "Generated temp.sh link: $TEMPLINK"
 
-    - name: Publish to GitHub Release v1.0.0
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v1.0.0
-        name: Darkr v1.0.0 (OLED Screen & Privacy Suite)
-        files: ./Darkr.apk
-        draft: false
-        prerelease: false
-        body: |
-          ## 🌑 Darkr v1.0.0 Android APK
-          
-          Directly tap **Darkr.apk** below to download and install on your phone!
+    - name: Create Unique GitHub Release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        TAG_NAME="release-$(date +'%Y%m%d-%H%M%S')"
+        gh release create "$TAG_NAME" ./Darkr.apk --title "Darkr App ($TAG_NAME)" --notes "### 🌑 Darkr Android APK Direct Download
+
+        Directly download Darkr.apk and install on your phone!"
