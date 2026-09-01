@@ -68,6 +68,10 @@ class MainActivity : AppCompatActivity() {
             requestOverlayPermission()
         }
 
+        binding.btnOpenAppSettings.setOnClickListener {
+            openAppDetailsSettings()
+        }
+
         binding.btnMasterToggle.setOnClickListener {
             if (!hasOverlayPermission()) {
                 requestOverlayPermission()
@@ -203,11 +207,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:$packageName")
-            )
-            overlayPermissionLauncher.launch(intent)
+            try {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+                overlayPermissionLauncher.launch(intent)
+            } catch (e: Exception) {
+                openAppDetailsSettings()
+            }
+        }
+    }
+
+    private fun openAppDetailsSettings() {
+        try {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.parse("package:$packageName")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+            Toast.makeText(this, "Tap the 3 dots (⋮) in top right & select 'Allow restricted settings'", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Could not open settings", Toast.LENGTH_SHORT).show()
         }
     }
 

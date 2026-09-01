@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="20dp"
-            android:paddingTop="24dp"
+            android:paddingTop="20dp"
             android:paddingBottom="40dp">
 
             <!-- Top Header & Brand Emblem -->
@@ -24,12 +24,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="20dp">
 
                 <ImageView
                     android:id="@+id/imgLogo"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
                     android:src="@drawable/ic_darkr_logo"
                     android:contentDescription="@string/app_name" />
 
@@ -54,7 +54,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/app_tagline"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="11.5sp" />
                 </LinearLayout>
 
                 <TextView
@@ -71,7 +71,7 @@
                     android:letterSpacing="0.06" />
             </LinearLayout>
 
-            <!-- Permission Card Banner (Visible only if overlay permission is missing) -->
+            <!-- Permission Helper Card (Visible when permission missing) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardPermission"
                 android:layout_width="match_parent"
@@ -79,7 +79,7 @@
                 android:layout_marginBottom="20dp"
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/card_dark"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -88,35 +88,93 @@
                     android:orientation="vertical"
                     android:padding="18dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/permission_required_title"
-                        android:textColor="@color/text_white"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_shield"
+                            android:contentDescription="@string/permission_required_title" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
+                            android:text="@string/permission_required_title"
+                            android:textColor="@color/text_white"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/permission_required_desc"
+                        android:layout_marginTop="8dp"
+                        android:text="Darkr requires 'Display over other apps' to show the floating action orb and privacy shields."
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:lineSpacingExtra="3dp" />
 
+                    <!-- Primary Grant Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnGrantPermission"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:layout_marginTop="14dp"
                         android:backgroundTint="@color/white_pure"
-                        android:text="@string/btn_grant_permission"
+                        android:text="1. GRANT OVERLAY PERMISSION"
                         android:textColor="@color/black_true"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.04"
                         app:cornerRadius="12dp" />
+
+                    <!-- Android 13/14 Restricted Settings Guide Box -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:background="@drawable/bg_badge_inactive"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="⚠️ IF BLOCKED BY ANDROID ('App was denied access'):"
+                            android:textColor="@color/white_pure"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.04" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="1. Tap 'Open App Settings' below\n2. Tap the 3 dots (⋮) in the top-right corner\n3. Select 'Allow restricted settings' &amp; enter PIN\n4. Come back and enable permission!"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp"
+                            android:lineSpacingExtra="3dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnOpenAppSettings"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="10dp"
+                            android:backgroundTint="@color/card_dark_elevated"
+                            android:text="2. OPEN APP SETTINGS (UNBLOCK)"
+                            android:textColor="@color/white_pure"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="10dp"
+                            app:strokeColor="@color/card_dark_stroke"
+                            app:strokeWidth="1dp" />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -136,13 +194,13 @@
                     android:orientation="horizontal">
 
                     <FrameLayout
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:background="@drawable/bg_action_circle">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_darkr_logo"
                             android:contentDescription="@string/title_floating_pill" />
@@ -169,7 +227,7 @@
                             android:layout_marginTop="2dp"
                             android:text="@string/desc_floating_pill"
                             android:textColor="@color/text_muted"
-                            android:textSize="12sp" />
+                            android:textSize="11.5sp" />
                     </LinearLayout>
                 </LinearLayout>
 
