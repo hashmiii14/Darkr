@@ -73,7 +73,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
             floatingPill = FloatingPillView(this, windowManager, this)
             try {
                 windowManager.addView(floatingPill?.rootView, floatingPill?.layoutParams)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
         }
     }
 
@@ -100,7 +100,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
             }
             try {
                 windowManager.addView(privacyCurtain?.rootView, privacyCurtain?.layoutParams)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
         } else {
             removePrivacyCurtain()
         }
@@ -110,7 +110,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         privacyCurtain?.let {
             try {
                 windowManager.removeView(it.rootView)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
             privacyCurtain = null
         }
     }
@@ -122,7 +122,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
             }
             try {
                 windowManager.addView(blackoutView?.rootView, blackoutView?.layoutParams)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
         } else {
             removeBlackout()
         }
@@ -132,7 +132,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         blackoutView?.let {
             try {
                 windowManager.removeView(it.rootView)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
             blackoutView = null
         }
     }
@@ -144,7 +144,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
             }
             try {
                 windowManager.addView(touchFreezeView?.rootView, touchFreezeView?.layoutParams)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
         } else {
             removeTouchFreeze()
         }
@@ -154,7 +154,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         touchFreezeView?.let {
             try {
                 windowManager.removeView(it.rootView)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
             touchFreezeView = null
         }
     }
@@ -164,7 +164,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
             midnightDimmerView = MidnightDimmerView(this)
             try {
                 windowManager.addView(midnightDimmerView?.rootView, midnightDimmerView?.layoutParams)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
         } else {
             removeDimmer()
         }
@@ -174,7 +174,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         midnightDimmerView?.let {
             try {
                 windowManager.removeView(it.rootView)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
             midnightDimmerView = null
         }
     }
@@ -215,7 +215,7 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         floatingPill?.let {
             try {
                 windowManager.removeView(it.rootView)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
             floatingPill = null
         }
     }

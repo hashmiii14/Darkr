@@ -108,7 +108,7 @@ class FloatingPillView(
                         layoutParams.y = initialY + deltaY
                         try {
                             windowManager.updateViewLayout(binding.root, layoutParams)
-                        } catch (_: Exception) {}
+                        } catch (e: Exception) {}
                     }
                     true
                 }
@@ -142,7 +142,7 @@ class FloatingPillView(
                 layoutParams.x = animation.animatedValue as Int
                 try {
                     windowManager.updateViewLayout(binding.root, layoutParams)
-                } catch (_: Exception) {}
+                } catch (e: Exception) {}
             }
         }
         animator.start()
