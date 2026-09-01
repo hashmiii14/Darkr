@@ -21,17 +21,23 @@
         android:hardwareAccelerated="true"
         tools:targetApi="34">
 
-        <!-- Main Dashboard Activity -->
+        <!-- Startup Animated Splash Screen -->
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:exported="true"
-            android:launchMode="singleTop"
             android:theme="@style/Theme.Darkr.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Main Dashboard Activity (3-Tab Home, Stats, Settings) -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.Darkr.NoActionBar" />
 
         <!-- Core Overlay Foreground Service -->
         <service
