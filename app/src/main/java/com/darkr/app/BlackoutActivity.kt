@@ -13,7 +13,6 @@ import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
@@ -32,11 +31,10 @@ import java.util.Locale
 /**
  * 100% Zero-Leak Edge-to-Edge Blackout Activity.
  * Guaranteed full-screen pitch-black coverage over status bar and 3-button navigation bar.
- * Features:
- * - Tap screen to smoothly reveal UNLOCK button with 4s auto-fade
- * - Tap UNLOCK button to restore screen and floating action button
- * - Double-tap anywhere failsafe wake
- * - Accurate AMOLED battery savings and session duration tracking
+ * Rules:
+ * - Double-tap anywhere does NOT unlock.
+ * - Single-tap anywhere on screen ONLY reveals the UNLOCK button (with 4s auto-fade).
+ * - Screen ONLY unlocks when the user directly taps the UNLOCK button.
  */
 class BlackoutActivity : AppCompatActivity() {
 
@@ -82,20 +80,6 @@ class BlackoutActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private val gestureDetector by lazy {
-        GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onDoubleTap(e: MotionEvent): Boolean {
-                performUnlock()
-                return true
-            }
-
-            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                revealUnlockButton()
-                return true
-            }
-        })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -155,7 +139,7 @@ class BlackoutActivity : AppCompatActivity() {
     }
 
     private fun setupUnlockInteraction() {
-        // Tapping the unlock container
+        // Tapping the bottom UNLOCK button container
         binding.layoutUnlockContainer.setOnClickListener {
             if (isUnlockVisible) {
                 performUnlock()
@@ -164,22 +148,32 @@ class BlackoutActivity : AppCompatActivity() {
             }
         }
 
-        // Tapping anywhere on the screen
-        binding.root.setOnTouchListener { _, event ->
+        // Tapping anywhere on the screen ONLY reveals the UNLOCK button, never dismisses blackout!
+        binding.root.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 val location = IntArray(2)
                 binding.layoutUnlockContainer.getLocationOnScreen(location)
                 val x = event.rawX
                 val y = event.rawY
 
-                if (isUnlockVisible &&
-                    x >= location[0] && x <= location[0] + binding.layoutUnlockContainer.width &&
-                    y >= location[1] && y <= location[1] + binding.layoutUnlockContainer.height) {
-                    performUnlock()
-                    return@setOnTouchListener true
+                // Check if user tapped inside the bottom UNLOCK button area
+                val isInsideUnlockArea = x >= location[0] &&
+                        x <= (location[0] + binding.layoutUnlockContainer.width) &&
+                        y >= location[1] &&
+                        y <= (location[1] + binding.layoutUnlockContainer.height)
+
+                if (isInsideUnlockArea) {
+                    if (isUnlockVisible) {
+                        performUnlock()
+                    } else {
+                        revealUnlockButton()
+                    }
+                } else {
+                    // Tapped anywhere else on the screen -> ONLY reveal UNLOCK button!
+                    revealUnlockButton()
                 }
+                v.performClick()
             }
-            gestureDetector.onTouchEvent(event)
             true
         }
     }

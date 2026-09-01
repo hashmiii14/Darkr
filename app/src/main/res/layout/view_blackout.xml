@@ -9,12 +9,13 @@
     android:clipToPadding="false"
     android:keepScreenOn="true">
 
-    <!-- Centered Minimalist Typography -->
+    <!-- Top Positioned Typography (Time, Date, Battery) -->
     <LinearLayout
         android:id="@+id/layoutClockContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="64dp"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -58,7 +59,7 @@
     <LinearLayout
         android:id="@+id/layoutUnlockContainer"
         android:layout_width="match_parent"
-        android:layout_height="96dp"
+        android:layout_height="100dp"
         android:layout_gravity="bottom"
         android:gravity="center"
         android:clickable="true"
