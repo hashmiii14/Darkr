@@ -1,4 +1,4 @@
-﻿name: Build and Release Darkr APK
+name: Build and Release Darkr APK
 
 on:
   push:
@@ -37,9 +37,12 @@ jobs:
         path: app/build/outputs/apk/debug/app-debug.apk
 
     - name: Publish Official GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: release-${{ github.run_number }}
+        name: Darkr APK (Build ${{ github.run_number }})
+        files: app/build/outputs/apk/debug/app-debug.apk
+        draft: false
+        prerelease: false
       env:
-        GH_TOKEN: ${{ github.token }}
-      run: |
-        cp app/build/outputs/apk/debug/app-debug.apk ./Darkr.apk
-        gh release delete v1.0.0 --yes || true
-        gh release create v1.0.0 ./Darkr.apk --title "Darkr Official APK (v1.0.0)" --notes "### 🌑 Darkr APK Direct Download"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
