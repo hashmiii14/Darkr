@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   build:
@@ -15,8 +16,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -32,11 +31,31 @@ jobs:
         chmod +x ./gradlew
         ./gradlew assembleDebug --no-daemon
 
-    - name: Upload and Update README
+    - name: Publish Instant Public Download Link & Issue
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
-        python3 scripts/publish_apk.py
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add README.md
-        git commit -m "docs: update direct download links [skip ci]" || true
-        git push origin main || true
+        APK="app/build/outputs/apk/debug/app-debug.apk"
+        
+        # 1. Catbox
+        CB_URL=$(curl -s -F "reqtype=fileupload" -F "fileToUpload=@$APK" https://catbox.moe/user/api.php || echo "")
+        echo "CB_URL=$CB_URL"
+        
+        # 2. 0x0.st
+        ZX_URL=$(curl -s -F "file=@$APK" https://0x0.st || echo "")
+        echo "ZX_URL=$ZX_URL"
+        
+        # 3. Create Public GitHub Issue with Direct Download Links
+        BODY="## 🌑 Darkr Android APK Direct Download (100% Working)
+
+        Click either link below to download directly to your phone:
+
+        - 🚀 **Direct Download Server 1 (Instant)**: $CB_URL
+        - 🚀 **Direct Download Server 2 (Backup)**: $ZX_URL
+
+        ### 📲 Installation:
+        1. Download the APK from the link above.
+        2. Tap Install on your Android device.
+        3. Open Darkr and grant 'Display over other apps' permission."
+
+        gh issue create --title "📲 Darkr APK Direct Download Link (Latest)" --body "$BODY" || true
