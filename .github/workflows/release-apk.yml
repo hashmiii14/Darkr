@@ -29,10 +29,41 @@ jobs:
       run: |
         chmod +x ./gradlew
         ./gradlew :app:assembleDebug --no-daemon
-        find . -name "*.apk" -ls
+        find . -name "*.apk"
+
+    - name: Prepare APK File
+      run: |
+        APK_PATH=$(find app/build/outputs/ -name "*.apk" | head -n 1)
+        echo "Found APK at: $APK_PATH"
+        cp "$APK_PATH" ./Darkr.apk
+        ls -lh ./Darkr.apk
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Darkr-App-APK
-        path: app/build/outputs/apk/debug/app-debug.apk
+        name: Darkr-APK-Package
+        path: ./Darkr.apk
+
+    - name: Publish to GitHub Release v1.0.0
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v1.0.0
+        name: Darkr v1.0.0 (OLED & Privacy Suite)
+        files: ./Darkr.apk
+        draft: false
+        prerelease: false
+        body: |
+          ## 🌑 Darkr v1.0.0 Android APK
+          
+          ### 🚀 Direct Download:
+          Click **Darkr.apk** below to download directly to your phone!
+          
+          ### ✨ Features:
+          - **AMOLED Blackout Engine** (0% battery background YouTube & sleep stream)
+          - **Metro Privacy Shield** (Draggable chat viewing slit for WhatsApp)
+          - **Night Screen Torch** (Soft full-screen ambient illumination)
+          - **Touch Freeze** (Accidental touch interceptor)
+          - **Panic Decoy Camouflage** (Fake update screen)
+          - **36px Floating Glass Orb** with Vertical HUD
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
