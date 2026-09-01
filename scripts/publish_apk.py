@@ -1,6 +1,6 @@
 ﻿import os
 import glob
-import requests
+import subprocess
 
 apk_files = glob.glob("app/build/outputs/apk/debug/*.apk")
 if not apk_files:
@@ -10,23 +10,26 @@ if not apk_files:
 apk_path = apk_files[0]
 print(f"Found APK: {apk_path} ({os.path.getsize(apk_path)} bytes)")
 
-catbox_url = ""
+# Use curl directly via subprocess to avoid any missing Python libraries
 try:
-    with open(apk_path, "rb") as f:
-        r = requests.post("https://catbox.moe/user/api.php", data={"reqtype": "fileupload"}, files={"fileToUpload": f}, timeout=60)
-        catbox_url = r.text.strip()
-        print(f"Catbox Direct URL: {catbox_url}")
+    catbox_url = subprocess.check_output(
+        ["curl", "-s", "-F", "reqtype=fileupload", "-F", f"fileToUpload=@{apk_path}", "https://catbox.moe/user/api.php"],
+        text=True
+    ).strip()
+    print("Catbox Direct URL:", catbox_url)
 except Exception as e:
-    print(f"Catbox upload failed: {e}")
+    catbox_url = ""
+    print("Catbox error:", e)
 
-zx_url = ""
 try:
-    with open(apk_path, "rb") as f:
-        r = requests.post("https://0x0.st", files={"file": f}, timeout=60)
-        zx_url = r.text.strip()
-        print(f"0x0.st Direct URL: {zx_url}")
+    zx_url = subprocess.check_output(
+        ["curl", "-s", "-F", f"file=@{apk_path}", "https://0x0.st"],
+        text=True
+    ).strip()
+    print("0x0 Direct URL:", zx_url)
 except Exception as e:
-    print(f"0x0 upload failed: {e}")
+    zx_url = ""
+    print("0x0 error:", e)
 
 readme_content = f"""# 🌑 Darkr — OLED Screen Off, Privacy Shield & Utility Suite
 
