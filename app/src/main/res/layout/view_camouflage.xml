@@ -11,10 +11,11 @@
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="220dp"
-        android:layout_height="8dp"
+        android:layout_height="6dp"
         android:indeterminate="true"
-        android:progressTint="@color/cyan_accent"
-        android:layout_marginBottom="24dp" />
+        android:indeterminateTint="@color/white_pure"
+        android:progressTint="@color/white_pure"
+        android:layout_marginBottom="28dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -23,6 +24,6 @@
         android:textColor="@color/text_secondary"
         android:textSize="14sp"
         android:gravity="center"
-        android:lineSpacingExtra="6dp" />
+        android:lineSpacingExtra="8dp" />
 
 </LinearLayout>

@@ -14,21 +14,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="20dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="40dp">
 
-            <!-- Top Brand Header -->
+            <!-- Top Header & Brand Emblem -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:layout_marginTop="16dp"
                 android:layout_marginBottom="24dp">
 
                 <ImageView
                     android:id="@+id/imgLogo"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:src="@drawable/ic_darkr_logo"
                     android:contentDescription="@string/app_name" />
 
@@ -44,9 +45,9 @@
                         android:layout_height="wrap_content"
                         android:text="@string/app_name"
                         android:textColor="@color/text_white"
-                        android:textSize="26sp"
+                        android:textSize="24sp"
                         android:textStyle="bold"
-                        android:letterSpacing="0.05" />
+                        android:letterSpacing="0.06" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -61,22 +62,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_badge_inactive"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="5dp"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
                     android:text="@string/status_inactive"
                     android:textColor="@color/text_muted"
                     android:textSize="10sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:letterSpacing="0.06" />
             </LinearLayout>
 
-            <!-- Permission Banner (Visible only if overlay permission is missing) -->
+            <!-- Permission Card Banner (Visible only if overlay permission is missing) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardPermission"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="18dp"
+                android:layout_marginBottom="20dp"
                 android:visibility="gone"
-                app:cardBackgroundColor="#25F43F5E"
+                app:cardBackgroundColor="@color/card_dark"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp">
 
@@ -84,39 +86,41 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="18dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/permission_required_title"
-                        android:textColor="@color/rose_accent"
+                        android:textColor="@color/text_white"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="6dp"
                         android:text="@string/permission_required_desc"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:lineSpacingExtra="3dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnGrantPermission"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:backgroundTint="@color/rose_accent"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="14dp"
+                        android:backgroundTint="@color/white_pure"
                         android:text="@string/btn_grant_permission"
-                        android:textColor="@color/text_white"
-                        android:textSize="11sp"
+                        android:textColor="@color/black_true"
+                        android:textSize="12sp"
                         android:textStyle="bold"
-                        app:cornerRadius="10dp" />
+                        android:letterSpacing="0.04"
+                        app:cornerRadius="12dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Hero Master Toggle Card -->
+            <!-- Master Floating Orb Controller Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,11 +135,18 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_darkr_logo"
-                        android:contentDescription="@string/title_floating_pill" />
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_action_circle">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_darkr_logo"
+                            android:contentDescription="@string/title_floating_pill" />
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -155,39 +166,40 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="@string/desc_floating_pill"
                             android:textColor="@color/text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Big Gradient Hero Launch Button -->
+                <!-- Big Monochrome Hero Master Toggle Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnMasterToggle"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="54dp"
                     android:layout_marginTop="18dp"
-                    android:background="@drawable/bg_button_gradient"
+                    android:backgroundTint="@color/white_pure"
                     android:text="@string/btn_start_service"
-                    android:textColor="@color/text_white"
-                    android:textSize="14sp"
+                    android:textColor="@color/black_true"
+                    android:textSize="13sp"
                     android:textStyle="bold"
-                    app:backgroundTint="@null"
-                    app:cornerRadius="16dp" />
+                    android:letterSpacing="0.06"
+                    app:cornerRadius="14dp" />
             </LinearLayout>
 
-            <!-- Section Title -->
+            <!-- Section Header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PROTECTION ENGINES"
-                android:textColor="@color/cyan_accent"
+                android:text="PROTECTION MODULES"
+                android:textColor="@color/text_secondary"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.1"
+                android:letterSpacing="0.12"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Engine 1: Metro Privacy Chat Shield -->
+            <!-- Module 1: Privacy Curtain -->
             <LinearLayout
                 android:id="@+id/cardShield"
                 android:layout_width="match_parent"
@@ -196,7 +208,7 @@
                 android:orientation="horizontal"
                 android:padding="16dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="10dp">
 
                 <ImageView
                     android:layout_width="28dp"
@@ -222,6 +234,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="@string/mode_privacy_desc"
                         android:textColor="@color/text_muted"
                         android:textSize="11sp" />
@@ -231,11 +244,11 @@
                     android:id="@+id/switchShield"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@color/cyan_accent"
-                    app:trackTint="#4006B6D4" />
+                    app:thumbTint="@color/white_pure"
+                    app:trackTint="@color/text_subtle" />
             </LinearLayout>
 
-            <!-- Engine 2: Pure AMOLED Blackout -->
+            <!-- Module 2: Pure AMOLED Blackout -->
             <LinearLayout
                 android:id="@+id/cardBlackout"
                 android:layout_width="match_parent"
@@ -244,7 +257,7 @@
                 android:orientation="horizontal"
                 android:padding="16dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="10dp">
 
                 <ImageView
                     android:layout_width="28dp"
@@ -270,6 +283,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="@string/mode_blackout_desc"
                         android:textColor="@color/text_muted"
                         android:textSize="11sp" />
@@ -279,11 +293,11 @@
                     android:id="@+id/switchBlackout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@color/violet_primary"
-                    app:trackTint="#407C3AED" />
+                    app:thumbTint="@color/white_pure"
+                    app:trackTint="@color/text_subtle" />
             </LinearLayout>
 
-            <!-- Engine 3: Touch Freeze -->
+            <!-- Module 3: Touch Freeze -->
             <LinearLayout
                 android:id="@+id/cardFreeze"
                 android:layout_width="match_parent"
@@ -292,7 +306,7 @@
                 android:orientation="horizontal"
                 android:padding="16dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="10dp">
 
                 <ImageView
                     android:layout_width="28dp"
@@ -318,6 +332,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="@string/mode_touch_freeze_desc"
                         android:textColor="@color/text_muted"
                         android:textSize="11sp" />
@@ -327,11 +342,11 @@
                     android:id="@+id/switchFreeze"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@color/emerald_accent"
-                    app:trackTint="#4010B981" />
+                    app:thumbTint="@color/white_pure"
+                    app:trackTint="@color/text_subtle" />
             </LinearLayout>
 
-            <!-- Engine 4: Panic Shake Reflex -->
+            <!-- Module 4: Panic Sensor Reflex -->
             <LinearLayout
                 android:id="@+id/cardPanic"
                 android:layout_width="match_parent"
@@ -340,7 +355,7 @@
                 android:orientation="horizontal"
                 android:padding="16dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="10dp">
 
                 <ImageView
                     android:layout_width="28dp"
@@ -366,6 +381,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="@string/mode_panic_desc"
                         android:textColor="@color/text_muted"
                         android:textSize="11sp" />
@@ -375,11 +391,11 @@
                     android:id="@+id/switchPanic"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@color/rose_accent"
-                    app:trackTint="#40F43F5E" />
+                    app:thumbTint="@color/white_pure"
+                    app:trackTint="@color/text_subtle" />
             </LinearLayout>
 
-            <!-- Engine 5: Extreme Midnight Dim -->
+            <!-- Module 5: Midnight Dimmer -->
             <LinearLayout
                 android:id="@+id/cardDimmer"
                 android:layout_width="match_parent"
@@ -388,7 +404,7 @@
                 android:orientation="horizontal"
                 android:padding="16dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="28dp">
 
                 <ImageView
                     android:layout_width="28dp"
@@ -414,6 +430,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="@string/mode_dimmer_desc"
                         android:textColor="@color/text_muted"
                         android:textSize="11sp" />
@@ -423,20 +440,19 @@
                     android:id="@+id/switchDimmer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@color/amber_accent"
-                    app:trackTint="#40F59E0B" />
+                    app:thumbTint="@color/white_pure"
+                    app:trackTint="@color/text_subtle" />
             </LinearLayout>
 
-            <!-- Footer: 100% Offline & Free Badge -->
+            <!-- Security & Privacy Guarantee Footer -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="🔒 100% OFFLINE • ZERO ADS AT LAUNCH • ZERO DATA COLLECTED"
+                android:text="🔒 100% OFFLINE • ZERO ADS • ZERO TRACKING"
                 android:textColor="@color/text_muted"
-                android:textSize="9sp"
-                android:letterSpacing="0.05"
-                android:layout_marginBottom="20dp" />
+                android:textSize="10sp"
+                android:letterSpacing="0.08" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

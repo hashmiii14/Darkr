@@ -3,10 +3,13 @@ package com.darkr.app.util
 import android.content.Context
 import android.content.SharedPreferences
 
+/**
+ * Thread-safe preferences storage layer for Darkr persistent configuration.
+ */
 class PreferencesManager(context: Context) {
 
     private val prefs: SharedPreferences =
-        context.getSharedPreferences("darkr_settings", Context.MODE_PRIVATE)
+        context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     var isServiceEnabled: Boolean
         get() = prefs.getBoolean(KEY_SERVICE_ENABLED, false)
@@ -32,13 +35,17 @@ class PreferencesManager(context: Context) {
         get() = prefs.getBoolean(KEY_DIMMER_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_DIMMER_ENABLED, value).apply()
 
+    var panicMode: String
+        get() = prefs.getString(KEY_PANIC_MODE, PANIC_MODE_BLACKOUT) ?: PANIC_MODE_BLACKOUT
+        set(value) = prefs.edit().putString(KEY_PANIC_MODE, value).apply()
+
     var slitYPosition: Int
-        get() = prefs.getInt(KEY_SLIT_Y, 400)
-        set(value) = prefs.edit().putInt(KEY_SLIT_Y, value).apply()
+        get() = prefs.getInt(KEY_SLIT_Y, 400).coerceAtLeast(0)
+        set(value) = prefs.edit().putInt(KEY_SLIT_Y, value.coerceAtLeast(0)).apply()
 
     var slitHeight: Int
-        get() = prefs.getInt(KEY_SLIT_HEIGHT, 150)
-        set(value) = prefs.edit().putInt(KEY_SLIT_HEIGHT, value).apply()
+        get() = prefs.getInt(KEY_SLIT_HEIGHT, 160).coerceIn(80, 800)
+        set(value) = prefs.edit().putInt(KEY_SLIT_HEIGHT, value.coerceIn(80, 800)).apply()
 
     var pillX: Int
         get() = prefs.getInt(KEY_PILL_X, 0)
@@ -49,15 +56,20 @@ class PreferencesManager(context: Context) {
         set(value) = prefs.edit().putInt(KEY_PILL_Y, value).apply()
 
     companion object {
-        private const val KEY_SERVICE_ENABLED = "key_service_enabled"
-        private const val KEY_SHIELD_ENABLED = "key_shield_enabled"
-        private const val KEY_BLACKOUT_ENABLED = "key_blackout_enabled"
-        private const val KEY_FREEZE_ENABLED = "key_freeze_enabled"
-        private const val KEY_PANIC_ENABLED = "key_panic_enabled"
-        private const val KEY_DIMMER_ENABLED = "key_dimmer_enabled"
-        private const val KEY_SLIT_Y = "key_slit_y"
-        private const val KEY_SLIT_HEIGHT = "key_slit_height"
-        private const val KEY_PILL_X = "key_pill_x"
-        private const val KEY_PILL_Y = "key_pill_y"
+        const val PREFS_NAME = "darkr_settings"
+        const val KEY_SERVICE_ENABLED = "key_service_enabled"
+        const val KEY_SHIELD_ENABLED = "key_shield_enabled"
+        const val KEY_BLACKOUT_ENABLED = "key_blackout_enabled"
+        const val KEY_FREEZE_ENABLED = "key_freeze_enabled"
+        const val KEY_PANIC_ENABLED = "key_panic_enabled"
+        const val KEY_DIMMER_ENABLED = "key_dimmer_enabled"
+        const val KEY_PANIC_MODE = "key_panic_mode"
+        const val KEY_SLIT_Y = "key_slit_y"
+        const val KEY_SLIT_HEIGHT = "key_slit_height"
+        const val KEY_PILL_X = "key_pill_x"
+        const val KEY_PILL_Y = "key_pill_y"
+
+        const val PANIC_MODE_BLACKOUT = "blackout"
+        const val PANIC_MODE_CAMOUFLAGE = "camouflage"
     }
 }

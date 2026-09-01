@@ -3,21 +3,25 @@ package com.darkr.app.service
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.view.WindowManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.darkr.app.DarkrApplication
 import com.darkr.app.MainActivity
 import com.darkr.app.R
 import com.darkr.app.overlay.*
 import com.darkr.app.sensor.ShakeDetector
+import com.darkr.app.util.DarkrStateManager
 import com.darkr.app.util.PreferencesManager
 
+/**
+ * Foreground Service controlling the Darkr Floating Orb, Privacy Curtains,
+ * Blackout, Touch Freeze, Midnight Dimmer, and Shake sensor.
+ */
 class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
 
-    private lateinit var windowManager: WindowManager
+    private lateinit var overlayManager: OverlayManager
     private lateinit var prefs: PreferencesManager
 
     private var floatingPill: FloatingPillView? = null
@@ -35,21 +39,30 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         const val ACTION_TOGGLE_BLACKOUT = "com.darkr.app.ACTION_TOGGLE_BLACKOUT"
         const val ACTION_TOGGLE_FREEZE = "com.darkr.app.ACTION_TOGGLE_FREEZE"
         const val ACTION_TOGGLE_DIMMER = "com.darkr.app.ACTION_TOGGLE_DIMMER"
+        const val ACTION_TOGGLE_CAMOUFLAGE = "com.darkr.app.ACTION_TOGGLE_CAMOUFLAGE"
+        const val ACTION_TRIGGER_PANIC = "com.darkr.app.ACTION_TRIGGER_PANIC"
         const val NOTIFICATION_ID = 1001
 
-        var isRunning = false
-            private set
+        private const val TAG = "DarkrOverlayService"
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
-        windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        overlayManager = OverlayManager(this)
         prefs = PreferencesManager(this)
-        isRunning = true
 
-        startForeground(NOTIFICATION_ID, buildNotification())
+        DarkrStateManager.setServiceRunning(true)
+        DarkrStateManager.setShakeEnabled(prefs.isPanicEnabled)
+        DarkrStateManager.setPanicMode(prefs.panicMode)
+
+        try {
+            startForeground(NOTIFICATION_ID, buildNotification())
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start foreground service", e)
+        }
+
         setupFloatingPill()
         setupShakeDetector()
     }
@@ -64,43 +77,51 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
             ACTION_TOGGLE_BLACKOUT -> onBlackoutClicked()
             ACTION_TOGGLE_FREEZE -> onFreezeClicked()
             ACTION_TOGGLE_DIMMER -> onDimmerClicked()
+            ACTION_TOGGLE_CAMOUFLAGE -> onCamouflageClicked()
+            ACTION_TRIGGER_PANIC -> onPanicClicked()
+            ACTION_START -> {
+                // If service already running, ensure floating pill is attached
+                if (floatingPill == null) {
+                    setupFloatingPill()
+                }
+            }
         }
         return START_STICKY
     }
 
     private fun setupFloatingPill() {
         if (floatingPill == null) {
-            floatingPill = FloatingPillView(this, windowManager, this)
-            try {
-                windowManager.addView(floatingPill?.rootView, floatingPill?.layoutParams)
-            } catch (e: Exception) {}
+            floatingPill = FloatingPillView(this, overlayManager, this)
+            floatingPill?.let {
+                overlayManager.safeAddView(it.rootView, it.layoutParams)
+            }
         }
     }
 
     private fun setupShakeDetector() {
         if (prefs.isPanicEnabled) {
-            shakeDetector = ShakeDetector(this) {
-                // On Panic Shake -> Trigger Blackout or Camouflage
-                onPanicTriggered()
+            if (shakeDetector == null) {
+                shakeDetector = ShakeDetector(this) {
+                    onPanicClicked()
+                }
             }
             shakeDetector?.start()
-        }
-    }
-
-    private fun onPanicTriggered() {
-        if (blackoutView == null && camouflageView == null) {
-            onBlackoutClicked()
+        } else {
+            shakeDetector?.stop()
+            shakeDetector = null
         }
     }
 
     override fun onShieldClicked() {
         if (privacyCurtain == null) {
-            privacyCurtain = PrivacyCurtainView(this, windowManager) {
+            privacyCurtain = PrivacyCurtainView(this, overlayManager) {
                 removePrivacyCurtain()
             }
-            try {
-                windowManager.addView(privacyCurtain?.rootView, privacyCurtain?.layoutParams)
-            } catch (e: Exception) {}
+            privacyCurtain?.let {
+                overlayManager.safeAddView(it.topView, it.topLayoutParams)
+                overlayManager.safeAddView(it.bottomView, it.bottomLayoutParams)
+                DarkrStateManager.setShieldActive(true)
+            }
         } else {
             removePrivacyCurtain()
         }
@@ -108,21 +129,25 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
 
     private fun removePrivacyCurtain() {
         privacyCurtain?.let {
-            try {
-                windowManager.removeView(it.rootView)
-            } catch (e: Exception) {}
+            overlayManager.safeRemoveView(it.topView)
+            overlayManager.safeRemoveView(it.bottomView)
             privacyCurtain = null
+            DarkrStateManager.setShieldActive(false)
         }
     }
 
     override fun onBlackoutClicked() {
         if (blackoutView == null) {
-            blackoutView = BlackoutView(this) {
+            // Dismiss camouflage if active
+            removeCamouflage()
+
+            blackoutView = BlackoutView(this, overlayManager) {
                 removeBlackout()
             }
-            try {
-                windowManager.addView(blackoutView?.rootView, blackoutView?.layoutParams)
-            } catch (e: Exception) {}
+            blackoutView?.let {
+                overlayManager.safeAddView(it.rootView, it.layoutParams)
+                DarkrStateManager.setBlackoutActive(true)
+            }
         } else {
             removeBlackout()
         }
@@ -130,21 +155,22 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
 
     private fun removeBlackout() {
         blackoutView?.let {
-            try {
-                windowManager.removeView(it.rootView)
-            } catch (e: Exception) {}
+            it.onDestroy()
+            overlayManager.safeRemoveView(it.rootView)
             blackoutView = null
+            DarkrStateManager.setBlackoutActive(false)
         }
     }
 
     override fun onFreezeClicked() {
         if (touchFreezeView == null) {
-            touchFreezeView = TouchFreezeView(this) {
+            touchFreezeView = TouchFreezeView(this, overlayManager) {
                 removeTouchFreeze()
             }
-            try {
-                windowManager.addView(touchFreezeView?.rootView, touchFreezeView?.layoutParams)
-            } catch (e: Exception) {}
+            touchFreezeView?.let {
+                overlayManager.safeAddView(it.rootView, it.layoutParams)
+                DarkrStateManager.setFreezeActive(true)
+            }
         } else {
             removeTouchFreeze()
         }
@@ -152,19 +178,19 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
 
     private fun removeTouchFreeze() {
         touchFreezeView?.let {
-            try {
-                windowManager.removeView(it.rootView)
-            } catch (e: Exception) {}
+            overlayManager.safeRemoveView(it.rootView)
             touchFreezeView = null
+            DarkrStateManager.setFreezeActive(false)
         }
     }
 
     override fun onDimmerClicked() {
         if (midnightDimmerView == null) {
-            midnightDimmerView = MidnightDimmerView(this)
-            try {
-                windowManager.addView(midnightDimmerView?.rootView, midnightDimmerView?.layoutParams)
-            } catch (e: Exception) {}
+            midnightDimmerView = MidnightDimmerView(this, overlayManager)
+            midnightDimmerView?.let {
+                overlayManager.safeAddView(it.rootView, it.layoutParams)
+                DarkrStateManager.setDimmerActive(true)
+            }
         } else {
             removeDimmer()
         }
@@ -172,10 +198,40 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
 
     private fun removeDimmer() {
         midnightDimmerView?.let {
-            try {
-                windowManager.removeView(it.rootView)
-            } catch (e: Exception) {}
+            overlayManager.safeRemoveView(it.rootView)
             midnightDimmerView = null
+            DarkrStateManager.setDimmerActive(false)
+        }
+    }
+
+    fun onCamouflageClicked() {
+        if (camouflageView == null) {
+            removeBlackout()
+
+            camouflageView = CamouflageView(this, overlayManager) {
+                removeCamouflage()
+            }
+            camouflageView?.let {
+                overlayManager.safeAddView(it.rootView, it.layoutParams)
+                DarkrStateManager.setCamouflageActive(true)
+            }
+        } else {
+            removeCamouflage()
+        }
+    }
+
+    private fun removeCamouflage() {
+        camouflageView?.let {
+            overlayManager.safeRemoveView(it.rootView)
+            camouflageView = null
+            DarkrStateManager.setCamouflageActive(false)
+        }
+    }
+
+    override fun onPanicClicked() {
+        when (prefs.panicMode) {
+            PreferencesManager.PANIC_MODE_CAMOUFLAGE -> onCamouflageClicked()
+            else -> onBlackoutClicked()
         }
     }
 
@@ -187,36 +243,43 @@ class DarkrOverlayService : Service(), FloatingPillView.ActionListener {
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+            },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         return NotificationCompat.Builder(this, DarkrApplication.CHANNEL_ID)
-            .setContentTitle("Darkr Shield Active")
-            .setContentText("Tap floating pill to trigger Privacy Shield or AMOLED Blackout")
+            .setContentTitle(getString(R.string.service_notification_title))
+            .setContentText(getString(R.string.service_notification_text))
             .setSmallIcon(R.drawable.ic_darkr_logo)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        isRunning = false
         prefs.isServiceEnabled = false
+        DarkrStateManager.setServiceRunning(false)
 
         shakeDetector?.stop()
+        shakeDetector = null
+
         removePrivacyCurtain()
         removeBlackout()
         removeTouchFreeze()
         removeDimmer()
+        removeCamouflage()
 
+        floatingPill?.onDestroy()
         floatingPill?.let {
-            try {
-                windowManager.removeView(it.rootView)
-            } catch (e: Exception) {}
+            overlayManager.safeRemoveView(it.rootView)
             floatingPill = null
         }
+
+        overlayManager.removeAll()
     }
 }

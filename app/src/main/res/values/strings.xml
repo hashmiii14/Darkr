@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Darkr</string>
-    <string name="app_tagline">Privacy Shield &amp; AMOLED Blackout</string>
+    <string name="app_tagline">Precision Screen Suite &amp; AMOLED Utility</string>
 
     <!-- Dashboard Strings -->
-    <string name="title_floating_pill">Floating Ghost Pill</string>
-    <string name="desc_floating_pill">Enable the draggable master bubble over all apps</string>
-    <string name="status_active">ACTIVE ON SCREEN</string>
-    <string name="status_inactive">STANDBY (TAP TO START)</string>
+    <string name="title_floating_pill">Floating Action Orb</string>
+    <string name="desc_floating_pill">Minimal draggable quick-action overlay accessible across all apps</string>
+    <string name="status_active">ACTIVE</string>
+    <string name="status_inactive">STANDBY</string>
 
-    <!-- Mode Titles -->
-    <string name="mode_privacy_title">Metro Chat Shield</string>
-    <string name="mode_privacy_desc">Draggable privacy curtain with touch passthrough for WhatsApp</string>
+    <!-- Feature Engines -->
+    <string name="mode_privacy_title">Privacy Curtain</string>
+    <string name="mode_privacy_desc">Draggable top &amp; bottom masks with interactive viewing slit for secure messaging</string>
 
     <string name="mode_blackout_title">Pure AMOLED Blackout</string>
-    <string name="mode_blackout_desc">100% True Black overlay for YouTube background audio &amp; 0% battery</string>
+    <string name="mode_blackout_desc">True black screen overlay for ambient listening and OLED pixel power reduction</string>
 
-    <string name="mode_touch_freeze_title">Pocket &amp; Baby Touch Freeze</string>
-    <string name="mode_touch_freeze_desc">Freeze touch input while video or map stays completely visible</string>
+    <string name="mode_touch_freeze_title">Touch Freeze Lock</string>
+    <string name="mode_touch_freeze_desc">Temporarily freeze all screen input while keeping underlying video or maps visible</string>
 
-    <string name="mode_panic_title">Panic Shake Reflex</string>
-    <string name="mode_panic_desc">Shake phone to immediately blackout or show fake system update</string>
+    <string name="mode_panic_title">Panic Camouflage</string>
+    <string name="mode_panic_desc">Emergency sensor reflex to immediately mask screen with decoy update screen or blackout</string>
 
-    <string name="mode_dimmer_title">Extreme Midnight Dim</string>
-    <string name="mode_dimmer_desc">Lower-than-zero brightness with warm candlelight eye guard</string>
+    <string name="mode_dimmer_title">Midnight Screen Dimmer</string>
+    <string name="mode_dimmer_desc">Sub-minimum software luminance filter for comfortable night-time viewing</string>
 
-    <!-- Permission & Actions -->
-    <string name="permission_required_title">Overlay Permission Needed</string>
-    <string name="permission_required_desc">Grant \'Display over other apps\' so Darkr can protect your screen</string>
+    <!-- Permissions & Actions -->
+    <string name="permission_required_title">Overlay Permission Required</string>
+    <string name="permission_required_desc">Darkr requires \'Display over other apps\' to render the floating orb and screen privacy shields.</string>
+    <string name="notification_permission_desc">Enable notifications so Darkr can run reliably in the background.</string>
     <string name="btn_grant_permission">GRANT PERMISSION</string>
-    <string name="btn_stop_service">STOP OVERLAY</string>
-    <string name="btn_start_service">LAUNCH GHOST PILL</string>
+    <string name="btn_stop_service">STOP DARKR SERVICE</string>
+    <string name="btn_start_service">START DARKR SERVICE</string>
 
-    <!-- Quick Action Tooltips -->
-    <string name="action_shield">Shield</string>
+    <!-- Quick Action HUD Tooltips -->
+    <string name="action_shield">Curtain</string>
     <string name="action_blackout">Blackout</string>
     <string name="action_freeze">Freeze</string>
-    <string name="action_dim">Dim</string>
+    <string name="action_dim">Dimmer</string>
     <string name="action_settings">Settings</string>
     <string name="action_close">Close</string>
 
-    <!-- Instructions -->
+    <!-- Overlay Prompts -->
     <string name="double_tap_to_wake">Double tap anywhere to wake</string>
-    <string name="double_tap_to_unlock">Double tap lock icon to unlock</string>
+    <string name="double_tap_to_unlock">Double tap lock badge to unlock</string>
+    <string name="curtain_drag_hint">↕ DRAG HANDLE TO POSITION VIEW</string>
     <string name="updating_system">Android System Updating (42%)\nDo not turn off device</string>
+    <string name="service_notification_title">Darkr Protection Active</string>
+    <string name="service_notification_text">Tap to open dashboard • Use floating orb for quick controls</string>
 </resources>

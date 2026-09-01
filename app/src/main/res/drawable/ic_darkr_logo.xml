@@ -4,12 +4,12 @@
     android:height="96dp"
     android:viewportWidth="96"
     android:viewportHeight="96">
-    <!-- Darkr Luxury Geometric Emblem: Outer Eclipse with Glowing Crescent & Inner Eye -->
+    <!-- Darkr Monochrome Geometric Emblem: Outer Eclipse with High-Contrast Aperture -->
     <path
-        android:fillColor="#7C3AED"
+        android:fillColor="#FFFFFF"
         android:pathData="M48,4A44,44 0,1 0,92,48A44,44 0,0 0,48,4ZM48,84A36,36 0,1 1,84,48A36,36 0,0 1,48,84Z" />
     <path
-        android:fillColor="#06B6D4"
+        android:fillColor="#71717A"
         android:pathData="M48,20A28,28 0,0 0,20,48A28,28 0,0 0,48,76A28,28 0,0 0,68,28A28,28 0,0 0,48,20ZM48,68A20,20 0,1 1,68,48A20,20 0,0 1,48,68Z" />
     <path
         android:fillColor="#FFFFFF"

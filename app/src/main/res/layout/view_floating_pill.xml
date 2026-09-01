@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <!-- Expandable Quick Action Bar (Hidden by default, shown on tap) -->
+    <!-- Expandable Quick Action HUD -->
     <LinearLayout
         android:id="@+id/layoutQuickActions"
         android:layout_width="wrap_content"
@@ -13,71 +14,84 @@
         android:orientation="horizontal"
         android:padding="8dp"
         android:gravity="center_vertical"
-        android:layout_marginEnd="64dp"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="60dp"
+        android:elevation="8dp"
         android:visibility="gone">
 
-        <!-- Shield Button -->
+        <!-- Shield / Privacy Curtain -->
         <ImageButton
             android:id="@+id/btnQuickShield"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:background="@drawable/bg_action_circle"
             android:src="@drawable/ic_shield"
-            android:contentDescription="@string/action_shield" />
+            android:contentDescription="@string/action_shield"
+            android:scaleType="centerInside"
+            android:padding="10dp" />
 
-        <!-- Blackout Button -->
+        <!-- Pure Blackout -->
         <ImageButton
             android:id="@+id/btnQuickBlackout"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_action_circle"
             android:src="@drawable/ic_blackout"
-            android:contentDescription="@string/action_blackout" />
+            android:contentDescription="@string/action_blackout"
+            android:scaleType="centerInside"
+            android:padding="10dp" />
 
-        <!-- Freeze Button -->
+        <!-- Touch Freeze -->
         <ImageButton
             android:id="@+id/btnQuickFreeze"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_action_circle"
             android:src="@drawable/ic_freeze"
-            android:contentDescription="@string/action_freeze" />
+            android:contentDescription="@string/action_freeze"
+            android:scaleType="centerInside"
+            android:padding="10dp" />
 
-        <!-- Dim Button -->
+        <!-- Midnight Dimmer -->
         <ImageButton
             android:id="@+id/btnQuickDim"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_action_circle"
             android:src="@drawable/ic_dimmer"
-            android:contentDescription="@string/action_dim" />
+            android:contentDescription="@string/action_dim"
+            android:scaleType="centerInside"
+            android:padding="10dp" />
 
-        <!-- Close / Hide Pill Button -->
+        <!-- Panic Trigger -->
         <ImageButton
-            android:id="@+id/btnQuickClose"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:id="@+id/btnQuickPanic"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_action_circle"
             android:src="@drawable/ic_panic"
-            android:contentDescription="@string/action_close" />
+            android:contentDescription="@string/mode_panic_title"
+            android:scaleType="centerInside"
+            android:padding="10dp" />
     </LinearLayout>
 
-    <!-- Main Draggable Floating Ghost Pill Icon -->
+    <!-- Signature Floating Orb -->
     <FrameLayout
         android:id="@+id/pillContainer"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
         android:layout_gravity="end|center_vertical"
-        android:background="@drawable/bg_glowing_pill">
+        android:background="@drawable/bg_glowing_pill"
+        android:elevation="12dp">
 
         <ImageView
             android:id="@+id/imgPillIcon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:layout_gravity="center"
             android:src="@drawable/ic_darkr_logo"
             android:contentDescription="@string/title_floating_pill" />

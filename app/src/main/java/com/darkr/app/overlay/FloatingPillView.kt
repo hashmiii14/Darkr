@@ -8,15 +8,19 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import com.darkr.app.databinding.ViewFloatingPillBinding
 import com.darkr.app.util.PreferencesManager
 import kotlin.math.abs
 
+/**
+ * Premium monochrome Floating Action Orb and Quick Action HUD.
+ */
 class FloatingPillView(
     private val context: Context,
-    private val windowManager: WindowManager,
+    private val overlayManager: OverlayManager,
     private val listener: ActionListener
 ) {
 
@@ -25,25 +29,21 @@ class FloatingPillView(
         fun onBlackoutClicked()
         fun onFreezeClicked()
         fun onDimmerClicked()
+        fun onPanicClicked()
         fun onCloseClicked()
     }
 
     private val binding: ViewFloatingPillBinding =
         ViewFloatingPillBinding.inflate(LayoutInflater.from(context))
     private val prefs = PreferencesManager(context)
+    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
 
-    val layoutParams: WindowManager.LayoutParams = WindowManager.LayoutParams(
-        WindowManager.LayoutParams.WRAP_CONTENT,
-        WindowManager.LayoutParams.WRAP_CONTENT,
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            @Suppress("DEPRECATION")
-            WindowManager.LayoutParams.TYPE_PHONE
-        },
-        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+    val layoutParams: WindowManager.LayoutParams = overlayManager.createOverlayLayoutParams(
+        width = WindowManager.LayoutParams.WRAP_CONTENT,
+        height = WindowManager.LayoutParams.WRAP_CONTENT,
+        flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-        PixelFormat.TRANSLUCENT
+        format = PixelFormat.TRANSLUCENT
     ).apply {
         gravity = Gravity.TOP or Gravity.START
         x = prefs.pillX
@@ -58,32 +58,33 @@ class FloatingPillView(
     private var initialTouchY = 0f
     private var isDragging = false
     private var isExpanded = false
+    private var snapAnimator: ValueAnimator? = null
 
     init {
-        setupTouchListener()
         setupClickListeners()
+        setupTouchListener()
     }
 
     private fun setupClickListeners() {
         binding.btnQuickShield.setOnClickListener {
-            toggleExpanded()
+            collapseHud()
             listener.onShieldClicked()
         }
         binding.btnQuickBlackout.setOnClickListener {
-            toggleExpanded()
+            collapseHud()
             listener.onBlackoutClicked()
         }
         binding.btnQuickFreeze.setOnClickListener {
-            toggleExpanded()
+            collapseHud()
             listener.onFreezeClicked()
         }
         binding.btnQuickDim.setOnClickListener {
-            toggleExpanded()
+            collapseHud()
             listener.onDimmerClicked()
         }
-        binding.btnQuickClose.setOnClickListener {
-            toggleExpanded()
-            listener.onCloseClicked()
+        binding.btnQuickPanic.setOnClickListener {
+            collapseHud()
+            listener.onPanicClicked()
         }
     }
 
@@ -91,6 +92,7 @@ class FloatingPillView(
         binding.pillContainer.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    snapAnimator?.cancel()
                     initialX = layoutParams.x
                     initialY = layoutParams.y
                     initialTouchX = event.rawX
@@ -102,13 +104,15 @@ class FloatingPillView(
                     val deltaX = (event.rawX - initialTouchX).toInt()
                     val deltaY = (event.rawY - initialTouchY).toInt()
 
-                    if (abs(deltaX) > 10 || abs(deltaY) > 10) {
+                    if (!isDragging && (abs(deltaX) > touchSlop || abs(deltaY) > touchSlop)) {
                         isDragging = true
+                        if (isExpanded) collapseHud()
+                    }
+
+                    if (isDragging) {
                         layoutParams.x = initialX + deltaX
-                        layoutParams.y = initialY + deltaY
-                        try {
-                            windowManager.updateViewLayout(binding.root, layoutParams)
-                        } catch (e: Exception) {}
+                        layoutParams.y = clampY(initialY + deltaY)
+                        overlayManager.safeUpdateViewLayout(binding.root, layoutParams)
                     }
                     true
                 }
@@ -125,29 +129,62 @@ class FloatingPillView(
         }
     }
 
+    private fun clampY(y: Int): Int {
+        val displayMetrics = context.resources.displayMetrics
+        val minY = 60
+        val maxY = displayMetrics.heightPixels - 200
+        return y.coerceIn(minY, maxY)
+    }
+
     private fun toggleExpanded() {
-        isExpanded = !isExpanded
-        binding.layoutQuickActions.visibility = if (isExpanded) View.VISIBLE else View.GONE
+        if (isExpanded) {
+            collapseHud()
+        } else {
+            expandHud()
+        }
+    }
+
+    fun expandHud() {
+        isExpanded = true
+        binding.layoutQuickActions.visibility = View.VISIBLE
+        binding.layoutQuickActions.alpha = 0f
+        binding.layoutQuickActions.animate().alpha(1f).setDuration(150).start()
+    }
+
+    fun collapseHud() {
+        isExpanded = false
+        binding.layoutQuickActions.animate().alpha(0f).setDuration(120).withEndAction {
+            binding.layoutQuickActions.visibility = View.GONE
+        }.start()
     }
 
     private fun snapToNearestEdge() {
         val displayMetrics = context.resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
-        val targetX = if (layoutParams.x > screenWidth / 2) screenWidth - binding.root.width else 0
+        val pillWidth = binding.pillContainer.width.takeIf { it > 0 } ?: (52 * displayMetrics.density).toInt()
+        val targetX = if (layoutParams.x + (pillWidth / 2) > screenWidth / 2) {
+            screenWidth - pillWidth - 16
+        } else {
+            16
+        }
 
-        val animator = ValueAnimator.ofInt(layoutParams.x, targetX).apply {
-            duration = 200
+        snapAnimator?.cancel()
+        snapAnimator = ValueAnimator.ofInt(layoutParams.x, targetX).apply {
+            duration = 220
             interpolator = DecelerateInterpolator()
-            addUpdateListener { animation ->
-                layoutParams.x = animation.animatedValue as Int
-                try {
-                    windowManager.updateViewLayout(binding.root, layoutParams)
-                } catch (e: Exception) {}
+            addUpdateListener { anim ->
+                layoutParams.x = anim.animatedValue as Int
+                overlayManager.safeUpdateViewLayout(binding.root, layoutParams)
             }
         }
-        animator.start()
+        snapAnimator?.start()
 
         prefs.pillX = targetX
         prefs.pillY = layoutParams.y
+    }
+
+    fun onDestroy() {
+        snapAnimator?.cancel()
+        snapAnimator = null
     }
 }

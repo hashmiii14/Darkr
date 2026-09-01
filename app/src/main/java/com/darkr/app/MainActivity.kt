@@ -1,6 +1,8 @@
 package com.darkr.app
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -10,19 +12,36 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.darkr.app.databinding.ActivityMainBinding
 import com.darkr.app.service.DarkrOverlayService
+import com.darkr.app.util.DarkrStateManager
 import com.darkr.app.util.PreferencesManager
+import kotlinx.coroutines.launch
 
+/**
+ * Darkr Primary Dashboard Activity.
+ * Synchronizes real-time state with DarkrStateManager and DarkrOverlayService.
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var prefs: PreferencesManager
 
+    private var isUpdatingSwitchesProgrammatically = false
+
     private val overlayPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-        checkOverlayPermission()
+        checkPermissions()
+    }
+
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        // Notification permission granted/denied
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,13 +53,14 @@ class MainActivity : AppCompatActivity() {
 
         setupUI()
         setupSwitches()
-        checkOverlayPermission()
+        observeState()
+        checkPermissions()
+        requestNotificationPermissionIfNeeded()
     }
 
     override fun onResume() {
         super.onResume()
-        checkOverlayPermission()
-        updateServiceStatusUI()
+        checkPermissions()
     }
 
     private fun setupUI() {
@@ -54,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (DarkrOverlayService.isRunning) {
+            if (DarkrStateManager.isServiceRunning.value) {
                 stopOverlayService()
             } else {
                 startOverlayService()
@@ -63,46 +83,108 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSwitches() {
-        binding.switchShield.isChecked = prefs.isShieldEnabled
         binding.switchShield.setOnCheckedChangeListener { _, isChecked ->
+            if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isShieldEnabled = isChecked
-            if (DarkrOverlayService.isRunning && isChecked) {
+            if (DarkrStateManager.isServiceRunning.value) {
                 sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_SHIELD)
             }
         }
 
-        binding.switchBlackout.isChecked = prefs.isBlackoutEnabled
         binding.switchBlackout.setOnCheckedChangeListener { _, isChecked ->
+            if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isBlackoutEnabled = isChecked
-            if (DarkrOverlayService.isRunning && isChecked) {
+            if (DarkrStateManager.isServiceRunning.value) {
                 sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_BLACKOUT)
             }
         }
 
-        binding.switchFreeze.isChecked = prefs.isFreezeEnabled
         binding.switchFreeze.setOnCheckedChangeListener { _, isChecked ->
+            if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isFreezeEnabled = isChecked
-            if (DarkrOverlayService.isRunning && isChecked) {
+            if (DarkrStateManager.isServiceRunning.value) {
                 sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_FREEZE)
             }
         }
 
-        binding.switchPanic.isChecked = prefs.isPanicEnabled
         binding.switchPanic.setOnCheckedChangeListener { _, isChecked ->
+            if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isPanicEnabled = isChecked
-            Toast.makeText(
-                this,
-                if (isChecked) "Shake gesture active" else "Shake gesture disabled",
-                Toast.LENGTH_SHORT
-            ).show()
+            DarkrStateManager.setShakeEnabled(isChecked)
+            if (DarkrStateManager.isServiceRunning.value) {
+                // Refresh shake detector
+                val intent = Intent(this, DarkrOverlayService::class.java).apply {
+                    action = DarkrOverlayService.ACTION_START
+                }
+                startService(intent)
+            }
         }
 
-        binding.switchDimmer.isChecked = prefs.isDimmerEnabled
         binding.switchDimmer.setOnCheckedChangeListener { _, isChecked ->
+            if (isUpdatingSwitchesProgrammatically) return@setOnCheckedChangeListener
             prefs.isDimmerEnabled = isChecked
-            if (DarkrOverlayService.isRunning) {
+            if (DarkrStateManager.isServiceRunning.value) {
                 sendServiceAction(DarkrOverlayService.ACTION_TOGGLE_DIMMER)
             }
+        }
+    }
+
+    private fun observeState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    DarkrStateManager.isServiceRunning.collect { isRunning ->
+                        updateMasterServiceUI(isRunning)
+                    }
+                }
+                launch {
+                    DarkrStateManager.isShieldActive.collect { isActive ->
+                        updateSwitchState(binding.switchShield, isActive)
+                    }
+                }
+                launch {
+                    DarkrStateManager.isBlackoutActive.collect { isActive ->
+                        updateSwitchState(binding.switchBlackout, isActive)
+                    }
+                }
+                launch {
+                    DarkrStateManager.isFreezeActive.collect { isActive ->
+                        updateSwitchState(binding.switchFreeze, isActive)
+                    }
+                }
+                launch {
+                    DarkrStateManager.isDimmerActive.collect { isActive ->
+                        updateSwitchState(binding.switchDimmer, isActive)
+                    }
+                }
+                launch {
+                    DarkrStateManager.isShakeEnabled.collect { isEnabled ->
+                        updateSwitchState(binding.switchPanic, isEnabled)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateSwitchState(switch: com.google.android.material.switchmaterial.SwitchMaterial, state: Boolean) {
+        if (switch.isChecked != state) {
+            isUpdatingSwitchesProgrammatically = true
+            switch.isChecked = state
+            isUpdatingSwitchesProgrammatically = false
+        }
+    }
+
+    private fun updateMasterServiceUI(isRunning: Boolean) {
+        if (isRunning) {
+            binding.tvStatusBadge.text = getString(R.string.status_active)
+            binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
+            binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
+            binding.btnMasterToggle.text = getString(R.string.btn_stop_service)
+        } else {
+            binding.tvStatusBadge.text = getString(R.string.status_inactive)
+            binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_inactive)
+            binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
+            binding.btnMasterToggle.text = getString(R.string.btn_start_service)
         }
     }
 
@@ -114,9 +196,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkOverlayPermission() {
-        val hasPermission = hasOverlayPermission()
-        binding.cardPermission.visibility = if (hasPermission) View.GONE else View.VISIBLE
+    private fun checkPermissions() {
+        val hasOverlay = hasOverlayPermission()
+        binding.cardPermission.visibility = if (hasOverlay) View.GONE else View.VISIBLE
     }
 
     private fun requestOverlayPermission() {
@@ -126,6 +208,15 @@ class MainActivity : AppCompatActivity() {
                 Uri.parse("package:$packageName")
             )
             overlayPermissionLauncher.launch(intent)
+        }
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 
@@ -139,8 +230,6 @@ class MainActivity : AppCompatActivity() {
             startService(intent)
         }
         prefs.isServiceEnabled = true
-        updateServiceStatusUI()
-        Toast.makeText(this, "Darkr Floating Pill Launched!", Toast.LENGTH_SHORT).show()
     }
 
     private fun stopOverlayService() {
@@ -149,8 +238,6 @@ class MainActivity : AppCompatActivity() {
         }
         startService(intent)
         prefs.isServiceEnabled = false
-        updateServiceStatusUI()
-        Toast.makeText(this, "Darkr Stopped", Toast.LENGTH_SHORT).show()
     }
 
     private fun sendServiceAction(action: String) {
@@ -158,20 +245,5 @@ class MainActivity : AppCompatActivity() {
             this.action = action
         }
         startService(intent)
-    }
-
-    private fun updateServiceStatusUI() {
-        val isRunning = DarkrOverlayService.isRunning
-        if (isRunning) {
-            binding.tvStatusBadge.text = getString(R.string.status_active)
-            binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
-            binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.emerald_accent))
-            binding.btnMasterToggle.text = getString(R.string.btn_stop_service)
-        } else {
-            binding.tvStatusBadge.text = getString(R.string.status_inactive)
-            binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_inactive)
-            binding.tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
-            binding.btnMasterToggle.text = getString(R.string.btn_start_service)
-        }
     }
 }

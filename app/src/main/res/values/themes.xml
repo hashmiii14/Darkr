@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Darkr" parent="Theme.Material3.Dark.NoActionBar">
-        <!-- Primary brand color -->
-        <item name="colorPrimary">@color/violet_primary</item>
-        <item name="colorOnPrimary">@color/text_white</item>
-        <item name="colorSecondary">@color/cyan_accent</item>
+        <!-- Pure Monochrome Theme -->
+        <item name="colorPrimary">@color/white_pure</item>
+        <item name="colorOnPrimary">@color/black_true</item>
+        <item name="colorSecondary">@color/text_secondary</item>
         <item name="colorOnSecondary">@color/black_true</item>
+        <item name="colorSurface">@color/card_dark</item>
+        <item name="colorOnSurface">@color/text_white</item>
+        <item name="android:colorBackground">@color/black_true</item>
 
-        <!-- Status bar and Navigation bar -->
+        <!-- System bar styling -->
         <item name="android:statusBarColor">@color/black_true</item>
         <item name="android:navigationBarColor">@color/black_true</item>
         <item name="android:windowBackground">@color/black_true</item>

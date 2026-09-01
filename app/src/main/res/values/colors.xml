@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- OLED & Dark Luxury Palette -->
+    <!-- Pure Monochrome & OLED True Black Palette -->
     <color name="black_true">#000000</color>
-    <color name="bg_obsidian">#0A0A0C</color>
-    <color name="card_dark">#121217</color>
-    <color name="card_dark_stroke">#22222E</color>
-    <color name="card_highlight">#1E1E28</color>
+    <color name="bg_obsidian">#09090B</color>
+    <color name="card_dark">#121215</color>
+    <color name="card_dark_elevated">#18181B</color>
+    <color name="card_dark_stroke">#27272A</color>
+    <color name="card_highlight">#3F3F46</color>
 
-    <!-- Neon Accents -->
-    <color name="violet_primary">#7C3AED</color>
-    <color name="violet_glow">#9333EA</color>
-    <color name="cyan_accent">#06B6D4</color>
-    <color name="emerald_accent">#10B981</color>
-    <color name="amber_accent">#F59E0B</color>
-    <color name="rose_accent">#F43F5E</color>
-
-    <!-- Text & Surface Colors -->
+    <!-- Monochrome Accents -->
+    <color name="white_pure">#FFFFFF</color>
+    <color name="white_muted">#E4E4E7</color>
     <color name="text_white">#FFFFFF</color>
-    <color name="text_secondary">#94A3B8</color>
-    <color name="text_muted">#64748B</color>
+    <color name="text_secondary">#A1A1AA</color>
+    <color name="text_muted">#71717A</color>
+    <color name="text_subtle">#52525B</color>
 
-    <!-- Transparent Masks & Overlays -->
+    <!-- Translucent Overlays & Glass -->
+    <color name="mask_dark_95">#F2000000</color>
     <color name="mask_dark_90">#E6000000</color>
     <color name="mask_dark_75">#BF000000</color>
     <color name="mask_dark_50">#80000000</color>
+    <color name="dimmer_overlay">#B3000000</color>
+    <color name="glass_white_20">#33FFFFFF</color>
     <color name="glass_white_10">#1AFFFFFF</color>
     <color name="glass_white_05">#0DFFFFFF</color>
     <color name="transparent">#00000000</color>
