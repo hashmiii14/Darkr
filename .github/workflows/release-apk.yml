@@ -1,4 +1,4 @@
-﻿name: Build and Release Darkr APK
+name: Build and Release Darkr APK
 
 on:
   push:
@@ -44,11 +44,11 @@ jobs:
         name: Darkr-APK-Download
         path: ./Darkr.apk
 
-    - name: Publish to GitHub Release v1.0.0
+    - name: Publish to GitHub Release v1.0.9
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.0.0
-        name: Darkr v1.0.0 (Android APK Direct Download)
+        tag_name: v1.0.9
+        name: Darkr v1.0.9 (Direct Android APK Download)
         files: ./Darkr.apk
         draft: false
         prerelease: false
