@@ -31,12 +31,12 @@ import java.util.Locale
 
 /**
  * 100% Zero-Leak Edge-to-Edge Blackout Activity.
- * Guaranteed 100% full-screen pitch-black coverage over status bar and 3-button navigation bar.
+ * Guaranteed full-screen pitch-black coverage over status bar and 3-button navigation bar.
  * Features:
- * - Always visible, glowing UNLOCK button
+ * - Tap screen to smoothly reveal UNLOCK button with 4s auto-fade
+ * - Tap UNLOCK button to restore screen and floating action button
  * - Double-tap anywhere failsafe wake
- * - Live battery and customizable clock styles
- * - Burn-in pixel shifting protection
+ * - Accurate AMOLED battery savings and session duration tracking
  */
 class BlackoutActivity : AppCompatActivity() {
 
@@ -46,6 +46,17 @@ class BlackoutActivity : AppCompatActivity() {
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private var pixelShiftIndex = 0
+    private var isUnlockVisible = false
+
+    private val fadeUnlockRunnable = Runnable {
+        binding.tvUnlockText.animate()
+            .alpha(0f)
+            .setDuration(400)
+            .withEndAction {
+                isUnlockVisible = false
+            }
+            .start()
+    }
 
     private val clockUpdateRunnable = object : Runnable {
         override fun run() {
@@ -81,20 +92,7 @@ class BlackoutActivity : AppCompatActivity() {
             }
 
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                binding.tvUnlockText.animate()
-                    .alpha(1.0f)
-                    .scaleX(1.08f)
-                    .scaleY(1.08f)
-                    .setDuration(120)
-                    .withEndAction {
-                        binding.tvUnlockText.animate()
-                            .alpha(0.8f)
-                            .scaleX(1.0f)
-                            .scaleY(1.0f)
-                            .setDuration(200)
-                            .start()
-                    }
-                    .start()
+                revealUnlockButton()
                 return true
             }
         })
@@ -115,6 +113,8 @@ class BlackoutActivity : AppCompatActivity() {
 
         setupClockDisplay()
         setupUnlockInteraction()
+
+        binding.tvUnlockText.alpha = 0f
     }
 
     private fun configureZeroLeakWindow() {
@@ -147,7 +147,7 @@ class BlackoutActivity : AppCompatActivity() {
             try {
                 registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
             } catch (e: Exception) {
-                // Ignore receiver error
+                // Ignore receiver registration error
             }
         } else {
             binding.layoutClockContainer.visibility = View.GONE
@@ -155,14 +155,45 @@ class BlackoutActivity : AppCompatActivity() {
     }
 
     private fun setupUnlockInteraction() {
+        // Tapping the unlock container
         binding.layoutUnlockContainer.setOnClickListener {
-            performUnlock()
+            if (isUnlockVisible) {
+                performUnlock()
+            } else {
+                revealUnlockButton()
+            }
         }
 
+        // Tapping anywhere on the screen
         binding.root.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val location = IntArray(2)
+                binding.layoutUnlockContainer.getLocationOnScreen(location)
+                val x = event.rawX
+                val y = event.rawY
+
+                if (isUnlockVisible &&
+                    x >= location[0] && x <= location[0] + binding.layoutUnlockContainer.width &&
+                    y >= location[1] && y <= location[1] + binding.layoutUnlockContainer.height) {
+                    performUnlock()
+                    return@setOnTouchListener true
+                }
+            }
             gestureDetector.onTouchEvent(event)
             true
         }
+    }
+
+    private fun revealUnlockButton() {
+        mainHandler.removeCallbacks(fadeUnlockRunnable)
+        isUnlockVisible = true
+        binding.tvUnlockText.animate()
+            .alpha(1.0f)
+            .setDuration(160)
+            .withEndAction {
+                mainHandler.postDelayed(fadeUnlockRunnable, 4000)
+            }
+            .start()
     }
 
     private fun updateClockDisplay() {

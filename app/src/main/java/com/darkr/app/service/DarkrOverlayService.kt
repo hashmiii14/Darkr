@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import androidx.core.app.NotificationCompat
 import com.darkr.app.BlackoutActivity
 import com.darkr.app.DarkrApplication
@@ -15,15 +16,21 @@ import com.darkr.app.overlay.*
 import com.darkr.app.sensor.PocketDetector
 import com.darkr.app.util.DarkrStateManager
 import com.darkr.app.util.PreferencesManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 /**
  * Core Foreground Service controlling the Darkr Floating Ghost Toggle,
  * Zero-Leak Blackout Engine, and Smart Pocket Sensor.
+ * Automatically hides the floating toggle when blackout is active.
  */
 class DarkrOverlayService : Service() {
 
     private lateinit var overlayManager: OverlayManager
     private lateinit var prefs: PreferencesManager
+    private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
 
     private var floatingPill: FloatingPillView? = null
     private var privacyCurtain: PrivacyCurtainView? = null
@@ -59,6 +66,15 @@ class DarkrOverlayService : Service() {
 
         setupFloatingPill()
         setupSensors()
+        observeBlackoutState()
+    }
+
+    private fun observeBlackoutState() {
+        serviceScope.launch {
+            DarkrStateManager.isBlackoutActive.collect { isBlackout ->
+                floatingPill?.rootView?.visibility = if (isBlackout) View.GONE else View.VISIBLE
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -92,16 +108,15 @@ class DarkrOverlayService : Service() {
     }
 
     private fun setupSensors() {
-        // Pocket detector
         if (prefs.isPocketEnabled) {
             if (pocketDetector == null) {
                 pocketDetector = PocketDetector(this) { isInPocket ->
                     if (isInPocket) {
-                        if (blackoutView == null) {
+                        if (!DarkrStateManager.isBlackoutActive.value) {
                             onBlackoutClicked()
                         }
                     } else {
-                        if (blackoutView != null) {
+                        if (DarkrStateManager.isBlackoutActive.value) {
                             removeBlackout()
                         }
                     }
@@ -139,6 +154,7 @@ class DarkrOverlayService : Service() {
     }
 
     fun onBlackoutClicked() {
+        floatingPill?.rootView?.visibility = View.GONE
         try {
             val intent = Intent(this, BlackoutActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -166,6 +182,7 @@ class DarkrOverlayService : Service() {
             blackoutView = null
             DarkrStateManager.setBlackoutActive(false)
         }
+        floatingPill?.rootView?.visibility = View.VISIBLE
     }
 
     private fun buildNotification(): Notification {
