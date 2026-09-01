@@ -28,28 +28,40 @@ jobs:
     - name: Build Debug APK
       run: |
         chmod +x ./gradlew
-        ./gradlew :app:assembleDebug --no-daemon
+        ./gradlew assembleDebug --no-daemon
 
-    - name: Prepare APK File
+    - name: Upload to Catbox and Generate Direct Link
       run: |
-        APK_FILE=$(find app/build/outputs/ -name "*.apk" | head -n 1)
-        echo "Found APK: $APK_FILE"
-        cp "$APK_FILE" ./Darkr.apk
+        python3 -c '
+import os, glob, requests
+apk_files = glob.glob("app/build/outputs/apk/debug/*.apk")
+print("Found files:", apk_files)
+if apk_files:
+    apk_path = apk_files[0]
+    with open(apk_path, "rb") as f:
+        res = requests.post("https://catbox.moe/user/api.php", data={"reqtype": "fileupload"}, files={"fileToUpload": f})
+        url = res.text.strip()
+        print("========================================")
+        print("DIRECT APK DOWNLOAD LINK:", url)
+        print("========================================")
+        with open("catbox_link.txt", "w") as out:
+            out.write(url)
+'
 
-    - name: Upload to Public Instant Links
-      run: |
-        echo "## 📲 Direct APK Download Links" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        
-        TEMPLINK=$(curl -s -F "file=@./Darkr.apk" https://temp.sh/upload)
-        echo "- **Direct Download (Instant)**: [$TEMPLINK]($TEMPLINK)" >> $GITHUB_STEP_SUMMARY
-        echo "Generated temp.sh link: $TEMPLINK"
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Darkr-Android-APK
+        path: app/build/outputs/apk/debug/*.apk
 
-    - name: Create Unique GitHub Release
+    - name: Publish to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v1.0.0
+        name: Darkr v1.0.0 (Android APK)
+        files: app/build/outputs/apk/debug/*.apk
+        draft: false
+        prerelease: false
+        make_latest: "true"
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        TAG_NAME="release-$(date +'%Y%m%d-%H%M%S')"
-        gh release create "$TAG_NAME" ./Darkr.apk --title "Darkr App ($TAG_NAME)" --notes "### 🌑 Darkr Android APK Direct Download
-
-        Directly download Darkr.apk and install on your phone!"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
