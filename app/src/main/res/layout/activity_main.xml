@@ -57,49 +57,77 @@
                 android:paddingHorizontal="20dp"
                 android:paddingBottom="20dp">
 
-                <!-- Interactive Phone Mockup Preview Frame (Matching Image 3 Reference) -->
-                <LinearLayout
-                    android:id="@+id/cardPhoneMockup"
-                    android:layout_width="160dp"
-                    android:layout_height="240dp"
+                <!-- Ambient Glow Wrapper + Interactive Phone Mockup Frame -->
+                <FrameLayout
+                    android:id="@+id/containerMockupGlow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginBottom="18dp"
-                    android:background="@drawable/bg_card_dark"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:padding="8dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp">
 
-                    <TextView
-                        android:id="@+id/tvMockupTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="8:05"
-                        android:textColor="#F0FFFFFF"
-                        android:textSize="32sp"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif-medium" />
+                    <!-- Ambient Glow Layer (animates when service is running) -->
+                    <View
+                        android:id="@+id/viewAmbientGlow"
+                        android:layout_width="168dp"
+                        android:layout_height="248dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_mockup_glow"
+                        android:alpha="0" />
 
-                    <TextView
-                        android:id="@+id/tvMockupDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Tue, Sep 1"
-                        android:textColor="#85FFFFFF"
-                        android:textSize="10.5sp" />
+                    <!-- Phone Silhouette Card -->
+                    <LinearLayout
+                        android:id="@+id/cardPhoneMockup"
+                        android:layout_width="156dp"
+                        android:layout_height="236dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_card_dark"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="48dp"
-                        android:text="UNLOCK"
-                        android:textColor="#65FFFFFF"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.12" />
-                </LinearLayout>
+                        <TextView
+                            android:id="@+id/tvMockupTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="8:05"
+                            android:textColor="#F0FFFFFF"
+                            android:textSize="32sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:id="@+id/tvMockupDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Tue, Sep 1"
+                            android:textColor="#85FFFFFF"
+                            android:textSize="10.5sp" />
+
+                        <TextView
+                            android:id="@+id/tvMockupBattery"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="81% • SAVING"
+                            android:textColor="#65FFFFFF"
+                            android:textSize="8.5sp"
+                            android:letterSpacing="0.06" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="38dp"
+                            android:text="UNLOCK"
+                            android:textColor="#65FFFFFF"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.12" />
+                    </LinearLayout>
+                </FrameLayout>
 
                 <!-- Sub-Navigation 3 Tabs (Look & Feel | Settings | Stats) -->
                 <LinearLayout
@@ -215,22 +243,21 @@
                         android:layout_height="wrap_content"
                         android:text="Black Screen Mode"
                         android:textColor="@color/text_white"
-                        android:textSize="14sp"
+                        android:textSize="13.5sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginBottom="10dp" />
 
-                    <!-- Mode Cards (Full Screen / Privacy Mode) -->
+                    <!-- Mode Cards -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="18dp">
 
-                        <!-- Mode 1: Full Screen -->
                         <LinearLayout
                             android:id="@+id/cardModeFullScreen"
                             android:layout_width="0dp"
-                            android:layout_height="100dp"
+                            android:layout_height="90dp"
                             android:layout_weight="1"
                             android:layout_marginEnd="8dp"
                             android:background="@drawable/bg_card_selected"
@@ -240,8 +267,8 @@
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
                                 android:src="@drawable/ic_blackout"
                                 android:tint="@color/white_pure"
                                 android:contentDescription="Full Screen" />
@@ -249,18 +276,17 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="6dp"
                                 android:text="Full Screen"
                                 android:textColor="@color/white_pure"
-                                android:textSize="12sp"
+                                android:textSize="11.5sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
 
-                        <!-- Mode 2: Privacy Mode -->
                         <LinearLayout
                             android:id="@+id/cardModePrivacy"
                             android:layout_width="0dp"
-                            android:layout_height="100dp"
+                            android:layout_height="90dp"
                             android:layout_weight="1"
                             android:layout_marginStart="8dp"
                             android:background="@drawable/bg_card_dark"
@@ -270,8 +296,8 @@
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
                                 android:src="@drawable/ic_shield"
                                 android:tint="@color/text_muted"
                                 android:contentDescription="Privacy Mode" />
@@ -279,10 +305,10 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="6dp"
                                 android:text="Privacy Mode"
                                 android:textColor="@color/text_muted"
-                                android:textSize="12sp"
+                                android:textSize="11.5sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
@@ -292,58 +318,146 @@
                         android:layout_height="wrap_content"
                         android:text="Clock Style"
                         android:textColor="@color/text_white"
-                        android:textSize="14sp"
+                        android:textSize="13.5sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginBottom="10dp" />
 
-                    <!-- Clock Style Cards -->
+                    <!-- 4 Clock Style Selection Cards Grid -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:layout_marginBottom="16dp">
 
+                        <!-- Row 1: Style 1 (Modern) & Style 2 (Bold Mono) -->
                         <LinearLayout
-                            android:id="@+id/cardStyleStandard"
-                            android:layout_width="0dp"
-                            android:layout_height="64dp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="6dp"
-                            android:background="@drawable/bg_card_selected"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:clickable="true"
-                            android:focusable="true">
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="8:05"
-                                android:textColor="@color/white_pure"
-                                android:textSize="16sp"
-                                android:fontFamily="sans-serif-medium" />
+                            <LinearLayout
+                                android:id="@+id/cardStyleModern"
+                                android:layout_width="0dp"
+                                android:layout_height="62dp"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="5dp"
+                                android:background="@drawable/bg_card_selected"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="8:05"
+                                    android:textColor="@color/white_pure"
+                                    android:textSize="15sp"
+                                    android:fontFamily="sans-serif-medium" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Modern"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="9.5sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/cardStyleBold"
+                                android:layout_width="0dp"
+                                android:layout_height="62dp"
+                                android:layout_weight="1"
+                                android:layout_marginStart="5dp"
+                                android:background="@drawable/bg_card_dark"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="08:05"
+                                    android:textColor="@color/text_muted"
+                                    android:textSize="15sp"
+                                    android:fontFamily="monospace"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Bold Mono"
+                                    android:textColor="@color/text_muted"
+                                    android:textSize="9.5sp" />
+                            </LinearLayout>
                         </LinearLayout>
 
+                        <!-- Row 2: Style 3 (Elegance Thin) & Style 4 (OLED Matrix) -->
                         <LinearLayout
-                            android:id="@+id/cardStyleBold"
-                            android:layout_width="0dp"
-                            android:layout_height="64dp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="6dp"
-                            android:background="@drawable/bg_card_dark"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:clickable="true"
-                            android:focusable="true">
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="8:05"
-                                android:textColor="@color/text_muted"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
+                            <LinearLayout
+                                android:id="@+id/cardStyleThin"
+                                android:layout_width="0dp"
+                                android:layout_height="62dp"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="5dp"
+                                android:background="@drawable/bg_card_dark"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="8:05"
+                                    android:textColor="@color/text_muted"
+                                    android:textSize="16sp"
+                                    android:fontFamily="sans-serif-thin" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Elegance"
+                                    android:textColor="@color/text_muted"
+                                    android:textSize="9.5sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/cardStyleMatrix"
+                                android:layout_width="0dp"
+                                android:layout_height="62dp"
+                                android:layout_weight="1"
+                                android:layout_marginStart="5dp"
+                                android:background="@drawable/bg_card_dark"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="8:05"
+                                    android:textColor="@color/text_muted"
+                                    android:textSize="15sp"
+                                    android:fontFamily="sans-serif-condensed"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Matrix"
+                                    android:textColor="@color/text_muted"
+                                    android:textSize="9.5sp" />
+                            </LinearLayout>
                         </LinearLayout>
+
                     </LinearLayout>
                 </LinearLayout>
 

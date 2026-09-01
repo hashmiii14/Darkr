@@ -1,9 +1,14 @@
 package com.darkr.app.overlay
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -16,33 +21,43 @@ import com.darkr.app.util.PreferencesManager
 import kotlin.math.abs
 
 /**
- * Premium monochrome Floating Action Orb and Quick Action HUD.
+ * 1-Tap Floating Ghost Toggle.
+ * Features:
+ * - Ultra-responsive 1-Tap Instant Blackout (No popups or menus).
+ * - Semi-transparent idle state (alpha 0.5f) that wakes on touch (alpha 0.9f).
+ * - Smooth physics-based dragging and edge snapping.
  */
+@SuppressLint("ClickableViewAccessibility")
 class FloatingPillView(
     private val context: Context,
     private val overlayManager: OverlayManager,
-    private val listener: ActionListener
+    private val onToggleBlackout: () -> Unit
 ) {
-
-    interface ActionListener {
-        fun onShieldClicked()
-        fun onBlackoutClicked()
-        fun onFreezeClicked()
-        fun onDimmerClicked()
-        fun onPanicClicked()
-        fun onCloseClicked()
-    }
 
     private val binding: ViewFloatingPillBinding =
         ViewFloatingPillBinding.inflate(LayoutInflater.from(context))
     private val prefs = PreferencesManager(context)
-    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+
+    private val touchSlop: Int = ViewConfiguration.get(context).scaledTouchSlop
+    private val displayMetrics: DisplayMetrics = context.resources.displayMetrics
+    private val density: Float = displayMetrics.density
+
+    private val pillWidthPx: Int = (48 * density).toInt()
+    private val pillHeightPx: Int = (48 * density).toInt()
+
+    private var initialTouchX = 0f
+    private var initialTouchY = 0f
+    private var initialPillX = 0
+    private var initialPillY = 0
+    private var isDragging = false
 
     val layoutParams: WindowManager.LayoutParams = overlayManager.createOverlayLayoutParams(
-        width = WindowManager.LayoutParams.WRAP_CONTENT,
-        height = WindowManager.LayoutParams.WRAP_CONTENT,
+        width = pillWidthPx,
+        height = pillHeightPx,
         flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS or
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
         format = PixelFormat.TRANSLUCENT
     ).apply {
         gravity = Gravity.TOP or Gravity.START
@@ -52,139 +67,115 @@ class FloatingPillView(
 
     val rootView: View get() = binding.root
 
-    private var initialX = 0
-    private var initialY = 0
-    private var initialTouchX = 0f
-    private var initialTouchY = 0f
-    private var isDragging = false
-    private var isExpanded = false
-    private var snapAnimator: ValueAnimator? = null
-
     init {
-        setupClickListeners()
-        setupTouchListener()
+        clampToScreenBounds()
+        setupTouchInteraction()
+        binding.root.alpha = 0.55f
     }
 
-    private fun setupClickListeners() {
-        binding.btnQuickShield.setOnClickListener {
-            collapseHud()
-            listener.onShieldClicked()
-        }
-        binding.btnQuickBlackout.setOnClickListener {
-            collapseHud()
-            listener.onBlackoutClicked()
-        }
-        binding.btnQuickFreeze.setOnClickListener {
-            collapseHud()
-            listener.onFreezeClicked()
-        }
-        binding.btnQuickDim.setOnClickListener {
-            collapseHud()
-            listener.onDimmerClicked()
-        }
-        binding.btnQuickPanic.setOnClickListener {
-            collapseHud()
-            listener.onPanicClicked()
-        }
-    }
-
-    private fun setupTouchListener() {
-        binding.pillContainer.setOnTouchListener { _, event ->
-            when (event.action) {
+    private fun setupTouchInteraction() {
+        binding.root.setOnTouchListener { _, event ->
+            when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    snapAnimator?.cancel()
-                    initialX = layoutParams.x
-                    initialY = layoutParams.y
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
+                    initialPillX = layoutParams.x
+                    initialPillY = layoutParams.y
                     isDragging = false
+
+                    binding.root.animate().scaleX(1.1f).scaleY(1.1f).alpha(0.95f).setDuration(120).start()
                     true
                 }
+
                 MotionEvent.ACTION_MOVE -> {
-                    val deltaX = (event.rawX - initialTouchX).toInt()
-                    val deltaY = (event.rawY - initialTouchY).toInt()
+                    val deltaX = event.rawX - initialTouchX
+                    val deltaY = event.rawY - initialTouchY
 
                     if (!isDragging && (abs(deltaX) > touchSlop || abs(deltaY) > touchSlop)) {
                         isDragging = true
-                        if (isExpanded) collapseHud()
                     }
 
                     if (isDragging) {
-                        layoutParams.x = initialX + deltaX
-                        layoutParams.y = clampY(initialY + deltaY)
+                        layoutParams.x = (initialPillX + deltaX).toInt()
+                        layoutParams.y = (initialPillY + deltaY).toInt()
                         overlayManager.safeUpdateViewLayout(binding.root, layoutParams)
                     }
                     true
                 }
+
                 MotionEvent.ACTION_UP -> {
-                    if (!isDragging) {
-                        toggleExpanded()
+                    binding.root.animate().scaleX(1.0f).scaleY(1.0f).alpha(0.55f).setDuration(200).start()
+
+                    if (isDragging) {
+                        snapToNearestEdge()
                     } else {
+                        // 1-TAP INSTANT BLACKOUT TRIGGER!
+                        vibrateHaptic()
+                        onToggleBlackout.invoke()
+                    }
+                    true
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    binding.root.animate().scaleX(1.0f).scaleY(1.0f).alpha(0.55f).setDuration(200).start()
+                    if (isDragging) {
                         snapToNearestEdge()
                     }
                     true
                 }
+
                 else -> false
             }
         }
     }
 
-    private fun clampY(y: Int): Int {
-        val displayMetrics = context.resources.displayMetrics
-        val minY = 60
-        val maxY = displayMetrics.heightPixels - 200
-        return y.coerceIn(minY, maxY)
-    }
-
-    private fun toggleExpanded() {
-        if (isExpanded) {
-            collapseHud()
-        } else {
-            expandHud()
-        }
-    }
-
-    fun expandHud() {
-        isExpanded = true
-        binding.layoutQuickActions.visibility = View.VISIBLE
-        binding.layoutQuickActions.alpha = 0f
-        binding.layoutQuickActions.animate().alpha(1f).setDuration(150).start()
-    }
-
-    fun collapseHud() {
-        isExpanded = false
-        binding.layoutQuickActions.animate().alpha(0f).setDuration(120).withEndAction {
-            binding.layoutQuickActions.visibility = View.GONE
-        }.start()
-    }
-
     private fun snapToNearestEdge() {
-        val displayMetrics = context.resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
-        val pillWidth = binding.pillContainer.width.takeIf { it > 0 } ?: (52 * displayMetrics.density).toInt()
-        val targetX = if (layoutParams.x + (pillWidth / 2) > screenWidth / 2) {
-            screenWidth - pillWidth - 16
-        } else {
-            16
-        }
+        val currentX = layoutParams.x
+        val targetX = if (currentX + pillWidthPx / 2 < screenWidth / 2) 0 else screenWidth - pillWidthPx
 
-        snapAnimator?.cancel()
-        snapAnimator = ValueAnimator.ofInt(layoutParams.x, targetX).apply {
+        val startX = layoutParams.x
+        val animator = ValueAnimator.ofInt(startX, targetX).apply {
             duration = 220
             interpolator = DecelerateInterpolator()
-            addUpdateListener { anim ->
-                layoutParams.x = anim.animatedValue as Int
+            addUpdateListener { animation ->
+                layoutParams.x = animation.animatedValue as Int
                 overlayManager.safeUpdateViewLayout(binding.root, layoutParams)
             }
         }
-        snapAnimator?.start()
+        animator.start()
 
         prefs.pillX = targetX
         prefs.pillY = layoutParams.y
     }
 
+    private fun clampToScreenBounds() {
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+
+        layoutParams.x = layoutParams.x.coerceIn(0, (screenWidth - pillWidthPx).coerceAtLeast(0))
+        layoutParams.y = layoutParams.y.coerceIn(100, (screenHeight - pillHeightPx - 100).coerceAtLeast(100))
+    }
+
+    private fun vibrateHaptic() {
+        if (!prefs.isVibrationEnabled) return
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                vibratorManager?.defaultVibrator?.vibrate(
+                    VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+                vibrator?.vibrate(20)
+            }
+        } catch (e: Exception) {
+            // Ignore vibration error
+        }
+    }
+
     fun onDestroy() {
-        snapAnimator?.cancel()
-        snapAnimator = null
+        // Cleanup
     }
 }

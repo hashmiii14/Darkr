@@ -18,10 +18,7 @@ class DarkrStateManagerTest {
         assertFalse(DarkrStateManager.isServiceRunning.value)
         assertFalse(DarkrStateManager.isShieldActive.value)
         assertFalse(DarkrStateManager.isBlackoutActive.value)
-        assertFalse(DarkrStateManager.isFreezeActive.value)
-        assertFalse(DarkrStateManager.isDimmerActive.value)
         assertFalse(DarkrStateManager.isClockActive.value)
-        assertFalse(DarkrStateManager.isCamouflageActive.value)
     }
 
     @Test
@@ -29,8 +26,6 @@ class DarkrStateManagerTest {
         DarkrStateManager.setServiceRunning(true)
         DarkrStateManager.setShieldActive(true)
         DarkrStateManager.setBlackoutActive(true)
-        DarkrStateManager.setFreezeActive(true)
-        DarkrStateManager.setDimmerActive(true)
         DarkrStateManager.setClockActive(true)
 
         assertTrue(DarkrStateManager.isShieldActive.value)
@@ -43,34 +38,15 @@ class DarkrStateManagerTest {
         assertFalse(DarkrStateManager.isServiceRunning.value)
         assertFalse(DarkrStateManager.isShieldActive.value)
         assertFalse(DarkrStateManager.isBlackoutActive.value)
-        assertFalse(DarkrStateManager.isFreezeActive.value)
-        assertFalse(DarkrStateManager.isDimmerActive.value)
         assertFalse(DarkrStateManager.isClockActive.value)
     }
 
     @Test
-    fun testBlackoutAndCamouflageMutualExclusivity() {
-        DarkrStateManager.setCamouflageActive(true)
-        assertTrue(DarkrStateManager.isCamouflageActive.value)
-        assertFalse(DarkrStateManager.isBlackoutActive.value)
-
-        DarkrStateManager.setBlackoutActive(true)
-        assertTrue(DarkrStateManager.isBlackoutActive.value)
-        assertFalse(DarkrStateManager.isCamouflageActive.value)
-    }
-
-    @Test
-    fun testPanicModeUpdate() {
-        DarkrStateManager.setPanicMode(PreferencesManager.PANIC_MODE_CAMOUFLAGE)
-        assertEquals(PreferencesManager.PANIC_MODE_CAMOUFLAGE, DarkrStateManager.panicMode.value)
-    }
-
-    @Test
-    fun testPocketAndMediaControlStateUpdates() {
+    fun testPocketStateUpdates() {
         DarkrStateManager.setPocketEnabled(true)
         assertTrue(DarkrStateManager.isPocketEnabled.value)
 
-        DarkrStateManager.setMediaControlsVisible(false)
-        assertFalse(DarkrStateManager.isMediaControlsVisible.value)
+        DarkrStateManager.setPocketEnabled(false)
+        assertFalse(DarkrStateManager.isPocketEnabled.value)
     }
 }

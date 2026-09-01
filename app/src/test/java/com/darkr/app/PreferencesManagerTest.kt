@@ -28,13 +28,13 @@ class PreferencesManagerTest {
     @Test
     fun testDefaultValues() {
         assertFalse("Default service state should be false", prefs.isServiceEnabled)
-        assertTrue("Default shield state should be true", prefs.isShieldEnabled)
-        assertTrue("Default blackout state should be true", prefs.isBlackoutEnabled)
-        assertTrue("Default freeze state should be true", prefs.isFreezeEnabled)
-        assertTrue("Default panic state should be true", prefs.isPanicEnabled)
-        assertFalse("Default dimmer state should be false", prefs.isDimmerEnabled)
-        assertEquals("Default panic mode should be blackout", PreferencesManager.PANIC_MODE_BLACKOUT, prefs.panicMode)
-        assertEquals("Default slit height should be 160", 160, prefs.slitHeight)
+        assertTrue("Default clock state should be true", prefs.isClockEnabled)
+        assertFalse("Default 24-hour state should be false", prefs.isTime24Hour)
+        assertTrue("Default show date state should be true", prefs.isShowDate)
+        assertTrue("Default show battery state should be true", prefs.isShowBattery)
+        assertFalse("Default pocket state should be false", prefs.isPocketEnabled)
+        assertTrue("Default vibration state should be true", prefs.isVibrationEnabled)
+        assertEquals("Default clock style should be Modern Minimal", PreferencesManager.STYLE_MODERN_MINIMAL, prefs.clockStyle)
     }
 
     @Test
@@ -42,24 +42,15 @@ class PreferencesManagerTest {
         prefs.isServiceEnabled = true
         assertTrue(prefs.isServiceEnabled)
 
-        prefs.isShieldEnabled = false
-        assertFalse(prefs.isShieldEnabled)
+        prefs.clockStyle = PreferencesManager.STYLE_BOLD_MONO
+        assertEquals(PreferencesManager.STYLE_BOLD_MONO, prefs.clockStyle)
 
-        prefs.panicMode = PreferencesManager.PANIC_MODE_CAMOUFLAGE
-        assertEquals(PreferencesManager.PANIC_MODE_CAMOUFLAGE, prefs.panicMode)
+        prefs.isTime24Hour = true
+        assertTrue(prefs.isTime24Hour)
 
         prefs.pillX = 120
         prefs.pillY = 340
         assertEquals(120, prefs.pillX)
         assertEquals(340, prefs.pillY)
-    }
-
-    @Test
-    fun testSlitHeightClamping() {
-        prefs.slitHeight = 10
-        assertEquals("Slit height should clamp to minimum 80", 80, prefs.slitHeight)
-
-        prefs.slitHeight = 1200
-        assertEquals("Slit height should clamp to maximum 800", 800, prefs.slitHeight)
     }
 }

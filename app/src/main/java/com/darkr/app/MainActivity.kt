@@ -1,6 +1,8 @@
 package com.darkr.app
 
 import android.Manifest
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -29,9 +31,11 @@ import java.util.Locale
  * Darkr Primary Dashboard Activity.
  * Pixel-perfect implementation matching Black Screen by japp.io layout:
  * - Top header with Darkr title and 3-dots menu
- * - Center interactive Phone Mockup preview frame
+ * - Center interactive Phone Mockup with ambient glow breathing animation
  * - 3 Sub-tabs (Look & Feel | Settings | Stats)
- * - Prominent bottom "Start" / "Stop" button
+ * - 4 Selectable Designer Clock Styles
+ * - 1-Tap Instant Floating Toggle
+ * - Bottom Master Start / Stop button
  */
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +45,7 @@ class MainActivity : AppCompatActivity() {
 
     private var currentTab = TAB_LOOK_FEEL
     private var isUpdatingSwitchesProgrammatically = false
+    private var glowAnimator: ObjectAnimator? = null
 
     private val overlayPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -51,7 +56,7 @@ class MainActivity : AppCompatActivity() {
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
-        // Notification permission granted/denied
+        // Notification permission response
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         setupNavigationTabs()
         setupUI()
+        setupClockStyleSelectors()
         setupSettingsSwitches()
         updateMockupPreview()
         observeState()
@@ -156,21 +162,45 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Clock Style Selection
-        binding.cardStyleStandard.setOnClickListener {
-            binding.cardStyleStandard.setBackgroundResource(R.drawable.bg_card_selected)
-            binding.cardStyleBold.setBackgroundResource(R.drawable.bg_card_dark)
-        }
-
-        binding.cardStyleBold.setOnClickListener {
-            binding.cardStyleStandard.setBackgroundResource(R.drawable.bg_card_dark)
-            binding.cardStyleBold.setBackgroundResource(R.drawable.bg_card_selected)
-        }
-
         // Top-Right 3-Dots Menu
         binding.btnMenuMore.setOnClickListener { view ->
             showMoreMenu(view)
         }
+    }
+
+    private fun setupClockStyleSelectors() {
+        highlightSelectedClockStyle(prefs.clockStyle)
+
+        binding.cardStyleModern.setOnClickListener {
+            prefs.clockStyle = PreferencesManager.STYLE_MODERN_MINIMAL
+            highlightSelectedClockStyle(PreferencesManager.STYLE_MODERN_MINIMAL)
+            updateMockupPreview()
+        }
+
+        binding.cardStyleBold.setOnClickListener {
+            prefs.clockStyle = PreferencesManager.STYLE_BOLD_MONO
+            highlightSelectedClockStyle(PreferencesManager.STYLE_BOLD_MONO)
+            updateMockupPreview()
+        }
+
+        binding.cardStyleThin.setOnClickListener {
+            prefs.clockStyle = PreferencesManager.STYLE_ELEGANCE_THIN
+            highlightSelectedClockStyle(PreferencesManager.STYLE_ELEGANCE_THIN)
+            updateMockupPreview()
+        }
+
+        binding.cardStyleMatrix.setOnClickListener {
+            prefs.clockStyle = PreferencesManager.STYLE_OLED_MATRIX
+            highlightSelectedClockStyle(PreferencesManager.STYLE_OLED_MATRIX)
+            updateMockupPreview()
+        }
+    }
+
+    private fun highlightSelectedClockStyle(style: Int) {
+        binding.cardStyleModern.setBackgroundResource(if (style == PreferencesManager.STYLE_MODERN_MINIMAL) R.drawable.bg_card_selected else R.drawable.bg_card_dark)
+        binding.cardStyleBold.setBackgroundResource(if (style == PreferencesManager.STYLE_BOLD_MONO) R.drawable.bg_card_selected else R.drawable.bg_card_dark)
+        binding.cardStyleThin.setBackgroundResource(if (style == PreferencesManager.STYLE_ELEGANCE_THIN) R.drawable.bg_card_selected else R.drawable.bg_card_dark)
+        binding.cardStyleMatrix.setBackgroundResource(if (style == PreferencesManager.STYLE_OLED_MATRIX) R.drawable.bg_card_selected else R.drawable.bg_card_dark)
     }
 
     private fun triggerBlackoutDirectly() {
@@ -227,13 +257,37 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateMockupPreview() {
         val now = Date()
-        val pattern = if (prefs.isTime24Hour) "HH:mm" else "h:mm"
-        val timeFormat = SimpleDateFormat(pattern, Locale.getDefault())
-        val dateFormat = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
+        val is24H = prefs.isTime24Hour
 
-        binding.tvMockupTime.text = timeFormat.format(now)
-        binding.tvMockupDate.text = dateFormat.format(now)
+        when (prefs.clockStyle) {
+            PreferencesManager.STYLE_MODERN_MINIMAL -> {
+                binding.tvMockupTime.typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.BOLD)
+                val pattern = if (is24H) "HH:mm" else "h:mm"
+                binding.tvMockupTime.text = SimpleDateFormat(pattern, Locale.getDefault()).format(now)
+                binding.tvMockupDate.text = SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(now)
+            }
+            PreferencesManager.STYLE_BOLD_MONO -> {
+                binding.tvMockupTime.typeface = android.graphics.Typeface.MONOSPACE
+                val pattern = if (is24H) "HH:mm" else "hh:mm"
+                binding.tvMockupTime.text = SimpleDateFormat(pattern, Locale.getDefault()).format(now)
+                binding.tvMockupDate.text = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(now)
+            }
+            PreferencesManager.STYLE_ELEGANCE_THIN -> {
+                binding.tvMockupTime.typeface = android.graphics.Typeface.create("sans-serif-thin", android.graphics.Typeface.NORMAL)
+                val pattern = if (is24H) "HH:mm" else "hh:mm"
+                binding.tvMockupTime.text = SimpleDateFormat(pattern, Locale.getDefault()).format(now)
+                binding.tvMockupDate.text = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(now)
+            }
+            PreferencesManager.STYLE_OLED_MATRIX -> {
+                binding.tvMockupTime.typeface = android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD)
+                val pattern = if (is24H) "HH:mm" else "h:mm"
+                binding.tvMockupTime.text = SimpleDateFormat(pattern, Locale.getDefault()).format(now)
+                binding.tvMockupDate.text = SimpleDateFormat("d MMM", Locale.getDefault()).format(now).uppercase()
+            }
+        }
+
         binding.tvMockupDate.visibility = if (prefs.isShowDate) View.VISIBLE else View.GONE
+        binding.tvMockupBattery.visibility = if (prefs.isShowBattery) View.VISIBLE else View.GONE
     }
 
     private fun observeState() {
@@ -259,11 +313,30 @@ class MainActivity : AppCompatActivity() {
             binding.btnMasterBottomAction.text = "Stop"
             binding.btnMasterBottomAction.setBackgroundColor(ContextCompat.getColor(this, R.color.card_dark_elevated))
             binding.btnMasterBottomAction.setTextColor(ContextCompat.getColor(this, R.color.white_pure))
+            startAmbientGlowAnimation()
         } else {
             binding.btnMasterBottomAction.text = "Start"
             binding.btnMasterBottomAction.setBackgroundColor(ContextCompat.getColor(this, R.color.white_pure))
             binding.btnMasterBottomAction.setTextColor(ContextCompat.getColor(this, R.color.black_true))
+            stopAmbientGlowAnimation()
         }
+    }
+
+    private fun startAmbientGlowAnimation() {
+        glowAnimator?.cancel()
+        binding.viewAmbientGlow.alpha = 0.4f
+        glowAnimator = ObjectAnimator.ofFloat(binding.viewAmbientGlow, "alpha", 0.35f, 0.85f).apply {
+            duration = 1400
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+            start()
+        }
+    }
+
+    private fun stopAmbientGlowAnimation() {
+        glowAnimator?.cancel()
+        glowAnimator = null
+        binding.viewAmbientGlow.animate().alpha(0f).setDuration(250).start()
     }
 
     private fun updateBlackoutCTA(isBlackout: Boolean) {
@@ -420,6 +493,11 @@ class MainActivity : AppCompatActivity() {
             this.action = action
         }
         startService(intent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        glowAnimator?.cancel()
     }
 
     companion object {

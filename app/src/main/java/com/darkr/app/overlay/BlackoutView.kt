@@ -105,8 +105,8 @@ class BlackoutView(
 
                 if (level >= 0 && scale > 0) {
                     val batteryPct = (level * 100) / scale
-                    val icon = if (isCharging) "⚡" else "🔋"
-                    binding.tvClockBattery.text = "$icon $batteryPct%"
+                    val statusText = if (isCharging) "CHARGING" else "SAVING"
+                    binding.tvClockBattery.text = "$batteryPct% • $statusText"
                 }
             }
         }
@@ -205,12 +205,45 @@ class BlackoutView(
 
     private fun updateClockDisplay() {
         val now = Date()
-        val pattern = if (prefs.isTime24Hour) "HH:mm" else "h:mm"
-        val timeFormat = SimpleDateFormat(pattern, Locale.getDefault())
-        val dateFormat = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
+        val is24H = prefs.isTime24Hour
 
-        binding.tvClockTime.text = timeFormat.format(now)
-        binding.tvClockDate.text = dateFormat.format(now)
+        when (prefs.clockStyle) {
+            PreferencesManager.STYLE_MODERN_MINIMAL -> {
+                binding.tvClockTime.typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.BOLD)
+                binding.tvClockTime.textSize = 64f
+                val pattern = if (is24H) "HH:mm" else "h:mm"
+                binding.tvClockTime.text = SimpleDateFormat(pattern, Locale.getDefault()).format(now)
+                binding.tvClockDate.text = SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(now)
+            }
+            PreferencesManager.STYLE_BOLD_MONO -> {
+                binding.tvClockTime.typeface = android.graphics.Typeface.MONOSPACE
+                binding.tvClockTime.textSize = 58f
+                val pattern = if (is24H) "HH:mm" else "hh:mm"
+                binding.tvClockTime.text = SimpleDateFormat(pattern, Locale.getDefault()).format(now)
+                binding.tvClockDate.text = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(now)
+            }
+            PreferencesManager.STYLE_ELEGANCE_THIN -> {
+                binding.tvClockTime.typeface = android.graphics.Typeface.create("sans-serif-thin", android.graphics.Typeface.NORMAL)
+                binding.tvClockTime.textSize = 72f
+                val pattern = if (is24H) "HH:mm" else "hh:mm a"
+                binding.tvClockTime.text = SimpleDateFormat(pattern, Locale.getDefault()).format(now)
+                binding.tvClockDate.text = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(now)
+            }
+            PreferencesManager.STYLE_OLED_MATRIX -> {
+                binding.tvClockTime.typeface = android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD)
+                binding.tvClockTime.textSize = 64f
+                val pattern = if (is24H) "HH:mm" else "h:mm"
+                binding.tvClockTime.text = SimpleDateFormat(pattern, Locale.getDefault()).format(now)
+                binding.tvClockDate.text = SimpleDateFormat("d MMM", Locale.getDefault()).format(now).uppercase()
+            }
+            else -> {
+                binding.tvClockTime.typeface = android.graphics.Typeface.DEFAULT_BOLD
+                binding.tvClockTime.textSize = 64f
+                val pattern = if (is24H) "HH:mm" else "h:mm"
+                binding.tvClockTime.text = SimpleDateFormat(pattern, Locale.getDefault()).format(now)
+                binding.tvClockDate.text = SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(now)
+            }
+        }
     }
 
     /**
